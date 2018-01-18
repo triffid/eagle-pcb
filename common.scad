@@ -5,7 +5,8 @@ ee = 0.01;
 ee2 = ee * 2;
 
 red = [1, 0, 0];
-yellow = [1, 0.6, 0];
+orange = [1, 0.6, 0];
+yellow = [1, 1, 0];
 green = [0, 1, 0];
 silver = [0.7, 0.7, 0.7];
 gold = [1, 0.8, 0.2];
@@ -38,19 +39,19 @@ module electro_capacitor(d, h) {
 			translate([-d, 0, 0]) rotate(45) cc([d, d, h / 8]);
 		}
 	}
-	color(silver) render() cylinder(d=d, h=h);
+	color(silver) render() cylinder(d=d * 0.95, h=h);
 	color(silver) render() cc([d * 1.2, d / 4, 0.25]);
 }
 
-module rcsmd(s=[1, 0.5]) {
+module rcsmd(s=[1, 0.5, 0.5]) {
 	color (silver) render()
 		difference() {
-			cc([s.x, s.y, s.y]);
-			translate([0, 0, s.y / -2]) cc([s.x / 2, s.y * 2, s.y * 2]);
+			cc([s.x, s.y, s.z?s.z:s.y]);
+			translate([0, 0, (s.z?s.z:s.y) / -2]) cc([s.x / 2, s.y * 2, (s.z?s.z:s.y) * 2]);
 		}
 	color (black) render()
 		translate([0, 0, ee])
-			cc([s.x - ee2, s.y - ee2, s.y - ee2]);
+			cc([s.x - ee2, s.y - ee2, (s.z?s.z:s.y) - ee2]);
 }
 
 module ledsmd(c=[0, 1, 0, 0.8], s=[2, 1.27]) {
@@ -60,6 +61,21 @@ module ledsmd(c=[0, 1, 0, 0.8], s=[2, 1.27]) {
 		translate([0, 0, 0.1]) cylinder(d=s.x / 4, h=s.x / 4, $fn=12);
 	color([c[0], c[1], c[2], 0.8]) render()
 		cc([s.y + ee, s.y, s.x * 0.4]);
+}
+
+module tqfp(pins = 32, pitch = 0.8) {
+	color(black)
+		cc([(pins / 4 * pitch + 1), (pins / 4 * pitch + 1), 1]);
+	color(silver) {
+		for (r = [0:3]) {
+			rotate([0, 0, 90 * r]) {
+				for (i = [0:pins/4 - 1]) {
+					translate([pitch / 2 + ((pins / -8) * pitch) + (i * pitch), (pins / 4 * pitch + 1) / 2, 0]) cc([pitch / 2, 1.5, 0.1]);
+				}
+			}
+		}
+	}
+	color(light) translate([((pins / -8) * pitch), ((pins / 4) * pitch) / 2, 1]) cylinder(d=0.6,h=ee, $fn=12);
 }
 
 module qfn(pins = 32, pitch = 0.5) {
@@ -159,4 +175,18 @@ module sot563() {
 
 module bottom() {
 	translate([0, 0, -1.6 - ee2]) mirror([0, 0, 1]) children();
+}
+
+module pin(height = 10, width = 0.6, belowheight = 2) {
+	color(silver) render() hull() {
+		translate([0, 0, height]) cc([width / 2, width / 2, ee]);
+		translate([0, 0, height - width]) cc([width, width, ee]);
+		if (belowheight) {
+			translate([0, 0, -belowheight + width]) cc([width, width, ee]);
+			translate([0, 0, -belowheight]) cc([width / 2, width / 2, ee]);
+		}
+		else {
+			cc([width, width, ee]);
+		}
+	}
 }
