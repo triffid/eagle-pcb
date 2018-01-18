@@ -20,12 +20,26 @@ module rcl_R0805() {
 	rcsmd([8 * 0.254, 5 * 0.254]);
 }
 
+module rcl_R1210() {
+	rcsmd([12 * 0.254, 10 * 0.254, 0.5]);
+}
+
+module rcl_CT3216() {
+	color([1, 0.9, 0.2]) cc([3.2, 1.6, 1.5]);
+	color(orange) translate([-1.35, 0, 1.5]) cc([0.5, 1.6, ee]);
+	color(silver) translate([0, 0, ee]) cc([3.3, 1, 0.8]);
+}
+
 module rcl_PANASONIC_A() {
 	electro_capacitor(3, 4);
 }
 
 module rcl_PANASONIC_B() {
 	electro_capacitor(4, 5);
+}
+
+module rcl_PANASONIC_E() {
+	electro_capacitor(8, 10);
 }
 
 module rcl_C050_030X075() {
