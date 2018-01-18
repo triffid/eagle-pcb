@@ -1,0 +1,216 @@
+#!/usr/bin/perl
+
+use strict;
+
+use XML::Simple;
+use Data::Dumper;
+
+if (@ARGV < 1) {
+	print "Usage: brd2scad <file.brd>\n";
+	exit 0;
+}
+
+my $scalefactor = 1.0 / 25.4 / 15.5;
+
+sub gerber2plane {
+	my ($fn, $module_name) = @_;
+
+	my ($px, $py);
+	open(TC, "<", $fn) and do {
+		my @apertures;
+		my $ca_text;
+		print "module $module_name() { translate(gerber_offset) render() {\n";
+		while (<TC>) {
+			chomp;
+			/^%ADD(\d+)R,([\d\.]+)X([\d\.]+)\*%/ && do {
+				# rectangular aperture
+				$apertures[$1] = sprintf("square([%g,%g], center=true)", $2 * 25.4, $3 * 25.4);
+			};
+			/^\%ADD(\d+)O?C(\d*),([\d\.]+)\*\%/ && do {
+				# circular aperture
+				if ($2) {
+					$apertures[$1] = sprintf("rotate(180 / %d) circle(d=%g, \$fn=%d)", $2, $3 * 25.4, $2);
+				}
+				else {
+					$apertures[$1] = sprintf("circle(d=%g, \$fn=16)", $3 * 25.4);
+				}
+			};
+			/^D(\d+)\*/ && do {
+				print "\t}\n" if $ca_text;
+				$ca_text = $apertures[$1];
+				print "\tunion() {\n";
+			};
+			/^X(\d+)Y(\d+)D(\d+)\*/ && do {
+				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
+				if ($op == 1) {
+					printf "\t\trender() hull() { translate([%g,%g]) %s; translate([%g,%g]) %s; };\n", $px, $py, $ca_text, $x, $y, $ca_text;
+					$px = $x;
+					$py = $y;
+				}
+				elsif ($op == 2) {
+					$px = $x;
+					$py = $y;
+				}
+				elsif ($op == 3) {
+					printf "\t\ttranslate([%g,%g]) %s;\n", $x, $y, $ca_text;
+				}
+			};
+		}
+		print "\t}\n}} // end $module_name\n";
+		close TC;
+	};
+}
+
+my $fileprefix = $ARGV[0]; $fileprefix =~ s/\.brd$//;
+
+my $xml = new XML::Simple;
+my $data = $xml->XMLin($ARGV[0]);
+
+open(SCAD, ">", $fileprefix.".scad");
+
+select SCAD;
+
+printf "// Generated from %s\n", $ARGV[0];
+printf "// Got EAGLE version %s\n\n", $data->{version};
+printf "include <eagle-pcb/common.scad>;\n\n";
+
+my @brd_offset = (0, 0);
+my $gerber_offset;
+
+for (@{$data->{drawing}->{board}->{plain}->{wire}}) {
+	if ($_->{layer} == 20) {
+		@brd_offset = ($_->{x1}, $_->{y1});
+		last;
+	}
+}
+
+if (1) {
+	my $board;
+	open(TC, "<", $fileprefix."_board_outline.gm1") and do {
+		my @apertures;
+		my $ca_text;
+		$board = "module 2dboard() { translate(gerber_offset) render() polygon(points=[\n";
+		my $index = 0;
+		my @paths;
+		while (<TC>) {
+			chomp; s/\r//g;
+			/X(\d+)Y(\d+)D(\d+)/ && do {
+				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
+
+				if ($op == 2) {
+					$gerber_offset = [$x + 0, $y + 0] unless defined $gerber_offset;
+					push @paths, [];
+				}
+
+				push @{$paths[$#paths]}, $index;
+				$board .= sprintf("\t\t[%g,%g],\n", $x, $y);
+				$index++;
+			};
+		}
+		$board =~ s/,\n$//s;
+		$board .= "]";
+		if ($#paths > 1) {
+			$board .= ",\n\tpaths=[\n";
+			for (@paths) {
+				$board .= ",\n" if $_ != $paths[0];
+				$board .= "\t\t[".join(",",@{$_})."]";
+			}
+			$board .= "]\n\t";
+		}
+		else {
+			$board .= "\n";
+		}
+		$board .= ");\n} // end 2dboard\n";
+		close TC;
+	};
+	printf "gerber_offset = [%g, %g];\n", $brd_offset[0] - $gerber_offset->[0], $brd_offset[1] - $gerber_offset->[1];
+
+	print "\n$board";
+}
+
+if (1) {
+	open(TC, "<", $fileprefix."_drills.txt") and do {
+		my @apertures;
+		my $ca_text;
+		print "module drills() { translate(gerber_offset) render() {\n";
+		while (<TC>) {
+			chomp; s/\r//g;
+			/^T(\d+)C([\d\.]+)/ && do {
+				$apertures[$1] = sprintf("circle(d=%g, \$fn=16)", $2 * 25.4);
+			};
+			/^T(\d+)$/ && do {
+				print "\t}\n" if $ca_text;
+				$ca_text = $apertures[$1];
+				print "\tunion() {\n";
+			};
+			/^X([\d\.]+)Y([\d\.]+)/ && do {
+				my ($x, $y) = ($1 * $scalefactor, $2 * $scalefactor);
+				printf "\t\ttranslate([%g,%g]) %s;\n", $x, $y, $ca_text;
+			};
+		}
+		print "\t}\n}} // END DRILLS\n\n";
+	};
+}
+
+gerber2plane($fileprefix."_top_copper.gtl", "gerber_tcopper");
+gerber2plane($fileprefix."_top_soldermask.gts", "gerber_tstop");
+gerber2plane($fileprefix."_top_silk.gto", "gerber_tsilk");
+
+gerber2plane($fileprefix."_bottom_copper.gbl", "gerber_bcopper");
+gerber2plane($fileprefix."_bottom_soldermask.gbs", "gerber_bstop");
+gerber2plane($fileprefix."_bottom_silk.gbo", "gerber_bsilk");
+
+print "\n";
+
+print "color(light) render() linear_extrude(0.035) difference() { gerber_tcopper(); drills(); }\n";
+print "color(soldermask) render() linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_tstop(); }\n";
+print "color(white) render() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_tsilk(); gerber_tstop(); } 2dboard(); }\n";
+
+print "color(fr4) translate([0, 0, -1.6]) linear_extrude(1.6) difference() { 2dboard(); drills(); }\n\n";
+
+print "color(light) render() bottom() linear_extrude(0.035) difference() { gerber_bcopper(); drills(); }\n";
+print "color(soldermask) render() bottom() linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_bstop(); }\n";
+print "color(white) render() bottom() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); gerber_bstop(); } 2dboard(); }\n";
+
+print "\n";
+
+# TODO: grab library footprints. Use them to attempt generation of unknown packages
+
+if (1) {
+
+	my %loaded_libraries;
+	for my $element (keys %{$data->{drawing}->{board}->{elements}->{element}}) {
+		my %part = %{$data->{drawing}->{board}->{elements}->{element}->{$element}};
+		if (defined $part{x}) {
+			if (! defined $loaded_libraries{$part{library}}) {
+				printf "\tuse <eagle-pcb/%s.scad>;\n", $part{library};
+				$loaded_libraries{$part{library}} = 1;
+			}
+		}
+	}
+
+	print "group() { // COMPONENTS\n";
+	for my $element (keys %{$data->{drawing}->{board}->{elements}->{element}}) {
+		my %part = %{$data->{drawing}->{board}->{elements}->{element}->{$element}};
+		if (defined $part{x}) {
+			if (! defined $loaded_libraries{$part{library}}) {
+				printf "\tuse <eagle-pcb/%s.scad>;\n", $part{library};
+				$loaded_libraries{$part{library}} = 1;
+			}
+			print "\t";
+			printf "bottom() " if $part{rot} =~ /^M/;
+			printf "translate([%g,%g,0]) ", $part{x}, $part{y};
+			printf "rotate([0, 0, %g]) ", $1 if $part{rot} =~ /R(\d+)/;
+			printf "mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
+
+			my $pn = $part{library}."_".$part{package};
+			$pn =~ s![/\-\.]!_!g;
+			print "$pn(value=\"".$part{value}."\"); // $element" . (($part{rot} =~ /^M/)?" (bottom)":""). "\n";
+		}
+	}
+	print "} // END COMPONENTS\n";
+}
+
+print "\n\n";
+
+select STDOUT;
