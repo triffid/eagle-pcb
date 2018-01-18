@@ -10,53 +10,99 @@ if (@ARGV < 1) {
 	exit 0;
 }
 
+my @brd_offset = (0, 0);
+my $gerber_offset;
 my $scalefactor = 1.0 / 25.4 / 15.5;
 
 sub gerber2plane {
 	my ($fn, $module_name) = @_;
 
-	my ($px, $py);
+	my $contour;
+	my $index;
+	my @paths;
+
 	open(TC, "<", $fn) and do {
 		my @apertures;
 		my $ca_text;
+		my ($px, $py);
+
 		print "module $module_name() { translate(gerber_offset) render() {\n";
+
 		while (<TC>) {
 			chomp;
 			/^%ADD(\d+)R,([\d\.]+)X([\d\.]+)\*%/ && do {
 				# rectangular aperture
 				$apertures[$1] = sprintf("square([%g,%g], center=true)", $2 * 25.4, $3 * 25.4);
 			};
-			/^\%ADD(\d+)O?C(\d*),([\d\.]+)\*\%/ && do {
+			/^\%ADD(\d+)C,([\d\.]+)\*\%/ && do {
 				# circular aperture
-				if ($2) {
-					$apertures[$1] = sprintf("rotate(180 / %d) circle(d=%g, \$fn=%d)", $2, $3 * 25.4, $2);
-				}
-				else {
-					$apertures[$1] = sprintf("circle(d=%g, \$fn=16)", $3 * 25.4);
-				}
+				$apertures[$1] = sprintf("circle(d=%g, \$fn=16)", $2 * 25.4);
+			};
+			/^\%ADD(\d+)OC(\d+),([\d\.]+)\*\%/ && do {
+				# circular aperture (with specific sides)
+				$apertures[$1] = sprintf("rotate(180 / %d) circle(d=%g, \$fn=%d)", $2, $3 * 25.4, $2);
 			};
 			/^D(\d+)\*/ && do {
 				print "\t}\n" if $ca_text;
 				$ca_text = $apertures[$1];
 				print "\tunion() {\n";
 			};
+			/^G36/ && do {
+				$contour =  "\t\trender() polygon(points=[\n";
+				$index = 0;
+				@paths = ();
+			};
+			/^G37/ && do {
+				$contour =~ s/,\n$//s;
+				$contour .= "]";
+				if ($#paths > 1) {
+					$contour .= ",\n\tpaths=[\n";
+					for (@paths) {
+						$contour .= ",\n" if $_ != $paths[0];
+						$contour .= "\t\t\t[".join(",",@{$_})."]";
+					}
+					$contour .= "]\n\t";
+				}
+				else {
+					$contour .= "\n";
+				}
+				$contour .= "\t\t);\n";
+				print $contour;
+				undef $contour;
+			};
 			/^X(\d+)Y(\d+)D(\d+)\*/ && do {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
-				if ($op == 1) {
-					printf "\t\trender() hull() { translate([%g,%g]) %s; translate([%g,%g]) %s; };\n", $px, $py, $ca_text, $x, $y, $ca_text;
-					$px = $x;
-					$py = $y;
+				if ($contour) {
+					if ($op == 2) {
+						$gerber_offset = [$x + 0, $y + 0] unless defined $gerber_offset;
+						push @paths, [];
+					}
+
+					push @{$paths[$#paths]}, $index;
+					$contour .= sprintf("\t\t\t[%g,%g],\n", $x, $y);
+					$index++;
 				}
-				elsif ($op == 2) {
-					$px = $x;
-					$py = $y;
-				}
-				elsif ($op == 3) {
-					printf "\t\ttranslate([%g,%g]) %s;\n", $x, $y, $ca_text;
+				else {
+					if ($op == 1) {
+						printf "\t\trender() hull() { translate([%g,%g]) %s; translate([%g,%g]) %s; };\n", $px, $py, $ca_text, $x, $y, $ca_text;
+						$px = $x; $py = $y;
+					}
+					elsif ($op == 2) {
+						$px = $x; $py = $y;
+					}
+					elsif ($op == 3) {
+						printf "\t\ttranslate([%g,%g]) %s;\n", $x, $y, $ca_text;
+					}
 				}
 			};
 		}
-		print "\t}\n}} // end $module_name\n";
+		if ($ca_text) {
+			print "\t}\n";
+		}
+		else {
+			print "\tcircle(d=ee); // EMPTY LAYER\n";
+		}
+		print "}} // end $module_name\n";
 		close TC;
 	};
 }
@@ -73,9 +119,6 @@ select SCAD;
 printf "// Generated from %s\n", $ARGV[0];
 printf "// Got EAGLE version %s\n\n", $data->{version};
 printf "include <eagle-pcb/common.scad>;\n\n";
-
-my @brd_offset = (0, 0);
-my $gerber_offset;
 
 for (@{$data->{drawing}->{board}->{plain}->{wire}}) {
 	if ($_->{layer} == 20) {
@@ -162,22 +205,21 @@ gerber2plane($fileprefix."_bottom_silk.gbo", "gerber_bsilk");
 
 print "\n";
 
-print "color(light) render() linear_extrude(0.035) difference() { gerber_tcopper(); drills(); }\n";
-print "color(soldermask) render() linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_tstop(); }\n";
-print "color(white) render() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_tsilk(); gerber_tstop(); } 2dboard(); }\n";
+print "color(light) render(convexity=5) linear_extrude(0.035) difference() { gerber_tcopper(); drills(); }\n";
+print "color(soldermask) render(convexity=5) linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_tstop(); }\n";
+print "color(white) render(convexity=5) linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_tsilk(); gerber_tstop(); } 2dboard(); }\n\n";
 
-print "color(fr4) translate([0, 0, -1.6]) linear_extrude(1.6) difference() { 2dboard(); drills(); }\n\n";
+print "color(fr4) render(convexity=5) translate([0, 0, -1.6]) linear_extrude(1.6) difference() { 2dboard(); drills(); }\n\n";
 
-print "color(light) render() bottom() linear_extrude(0.035) difference() { gerber_bcopper(); drills(); }\n";
-print "color(soldermask) render() bottom() linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_bstop(); }\n";
-print "color(white) render() bottom() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); gerber_bstop(); } 2dboard(); }\n";
+print "color(light) render(convexity=5) bottom() linear_extrude(0.035) difference() { gerber_bcopper(); drills(); }\n";
+print "color(soldermask) render(convexity=5) bottom() linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_bstop(); }\n";
+print "color(white) render(convexity=5) bottom() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); gerber_bstop(); } 2dboard(); }\n";
 
 print "\n";
 
 # TODO: grab library footprints. Use them to attempt generation of unknown packages
 
 if (1) {
-
 	my %loaded_libraries;
 	for my $element (keys %{$data->{drawing}->{board}->{elements}->{element}}) {
 		my %part = %{$data->{drawing}->{board}->{elements}->{element}->{$element}};
@@ -189,7 +231,7 @@ if (1) {
 		}
 	}
 
-	print "group() { // COMPONENTS\n";
+	print "translate([0, 0, ee2]) group() { // COMPONENTS\n";
 	for my $element (keys %{$data->{drawing}->{board}->{elements}->{element}}) {
 		my %part = %{$data->{drawing}->{board}->{elements}->{element}->{$element}};
 		if (defined $part{x}) {
@@ -204,7 +246,7 @@ if (1) {
 			printf "mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
 
 			my $pn = $part{library}."_".$part{package};
-			$pn =~ s![/\-\.]!_!g;
+			$pn =~ s![^a-zA-Z0-9_]!_!g;
 			print "$pn(value=\"".$part{value}."\"); // $element" . (($part{rot} =~ /^M/)?" (bottom)":""). "\n";
 		}
 	}
