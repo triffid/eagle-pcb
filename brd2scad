@@ -85,15 +85,12 @@ sub gerber2plane {
 				else {
 					if ($op == 1) {
 						printf "\t\trender() hull() { translate([%g,%g]) %s; translate([%g,%g]) %s; };\n", $px, $py, $ca_text, $x, $y, $ca_text;
-						$px = $x; $py = $y;
-					}
-					elsif ($op == 2) {
-						$px = $x; $py = $y;
 					}
 					elsif ($op == 3) {
 						printf "\t\ttranslate([%g,%g]) %s;\n", $x, $y, $ca_text;
 					}
 				}
+				$px = $x; $py = $y;
 			};
 		}
 		if ($ca_text) {
