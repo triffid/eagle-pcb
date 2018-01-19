@@ -74,7 +74,7 @@ sub gerber2plane {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
 				if ($contour) {
 					if ($op == 2) {
-						$gerber_offset = [$x + 0, $y + 0] unless defined $gerber_offset;
+						$gerber_offset = [$x + 0, $y + 0] unless defined $gerber_offset; # WARNING: this requires that board outline is always read first!
 						push @paths, [];
 					}
 
@@ -239,8 +239,8 @@ if (1) {
 			print "\t";
 			printf "bottom() " if $part{rot} =~ /^M/;
 			printf "translate([%g,%g,0]) ", $part{x}, $part{y};
-			printf "rotate([0, 0, %g]) ", $1 if $part{rot} =~ /R(\d+)/;
 			printf "mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
+			printf "rotate([0, 0, %g]) ", $1 if $part{rot} =~ /R(\d+)/;
 
 			my $pn = $part{library}."_".$part{package};
 			$pn =~ s![^a-zA-Z0-9_]!_!g;
