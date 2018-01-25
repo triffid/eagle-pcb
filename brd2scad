@@ -204,13 +204,13 @@ print "\n";
 
 print "color(light) render(convexity=5) linear_extrude(0.035) difference() { gerber_tcopper(); drills(); }\n";
 print "color(soldermask) render(convexity=5) linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_tstop(); }\n";
-print "color(white) render(convexity=5) linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_tsilk(); gerber_tstop(); } 2dboard(); }\n\n";
+print "color(white) render(convexity=5) linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_tsilk(); offset(0.1) gerber_tstop(); offset(0.1) drills(); } 2dboard(); }\n\n";
 
 print "color(fr4) render(convexity=5) translate([0, 0, -1.6]) linear_extrude(1.6) difference() { 2dboard(); drills(); }\n\n";
 
 print "color(light) render(convexity=5) bottom() linear_extrude(0.035) difference() { gerber_bcopper(); drills(); }\n";
 print "color(soldermask) render(convexity=5) bottom() linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_bstop(); }\n";
-print "color(white) render(convexity=5) bottom() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); gerber_bstop(); } 2dboard(); }\n";
+print "color(white) render(convexity=5) bottom() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); offset(0.1) gerber_bstop(); offset(0.1) drills(); } 2dboard(); }\n";
 
 print "\n";
 
