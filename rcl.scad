@@ -4,8 +4,16 @@ module rcl_C0402K() {
 	rcsmd([4 * 0.254, 2 * 0.254]);
 }
 
+module rcl_C0402() {
+	rcsmd([4 * 0.254, 2 * 0.254]);
+}
+
 module rcl_R0402() {
 	rcsmd([4 * 0.254, 2 * 0.254]);
+}
+
+module rcl_R0603() {
+	rcsmd([6 * 0.254, 3 * 0.254]);
 }
 
 module rcl_C0603() {
@@ -42,6 +50,10 @@ module rcl_PANASONIC_E() {
 	electro_capacitor(8, 10);
 }
 
+module rcl_UD_6_3X5_8_NICHICON() {
+	electro_capacitor(6.3, 5.8);
+}
+
 module rcl_C050_030X075() {
 	color(silver) render() {
 		translate([ 2.54, 0, -2]) cylinder(d=0.6, h=6, $fn=16);
@@ -57,4 +69,17 @@ module rcl_C050_030X075() {
 		translate([ 2.54, 0, 5.8]) sphere(d=0.8, $fn=8);
 		translate([-2.54, 0, 5.8]) sphere(d=0.8, $fn=8);
 	}
+}
+
+module rcl_C0603K() {
+	rcsmd([6 * 0.254, 3 * 0.254]);
+}
+
+module rcl_D_7343_31R(name, value) {
+	color(dark) cc([7.3, 4.3, 3.1]);
+	color(white) translate([(7.3 / -2) + 0.5, 0, 3.1]) cc([1, 4.3, ee]);
+	color(silver) translate([0, 0, ee]) cc([7.4, 2.5, 1]);
+
+	color(white) translate([0,  0.3, 3.1]) linear_extrude(height=ee) text(text=name, valign="bottom", halign="center", size=1);
+	color(white) translate([0, -0.3, 3.1]) linear_extrude(height=ee) text(text=value, valign="top", halign="center", size=1);
 }

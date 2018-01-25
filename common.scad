@@ -94,11 +94,17 @@ module qfn(pins = 32, pitch = 0.5) {
 }
 
 module sw_membrane(size=[5, 5, 2]) {
-	color(silver) render() hull() {
-		cc([size[0], size[1] * 0.75, size[2] * 0.5]);
-		cc([size[0] * 0.75, size[1], size[2] * 0.5]);
+	color(silver) render() translate([0, 0, (size[2] / 2) - 0.1]) hull() {
+		cc([size[0], size[1] * 0.75, 0.1]);
+		cc([size[0] * 0.75, size[1], 0.1]);
 	}
-	color(dark) cylinder(d=(size[0] + size[1]) / 4, h=size[2]);
+	color(dark) render() {
+		cylinder(d=(size[0] + size[1]) / 4, h=size[2]);
+		hull() {
+			cc([size[0], size[1] * 0.75, size[2] / 2 - 0.1]);
+			cc([size[0] * 0.75, size[1], size[2] / 2 - 0.1]);
+		}
+	}
 }
 
 module smt_xtal() {
@@ -112,28 +118,7 @@ module smt_xtal() {
 	color(silver) cc([3.2, 2.5, 0.1]);
 }
 
-module microusb() {
-	color(silver) render()
-	translate([-2.25, 0, 0])
-	group() {
-		difference() {
-			union() {
-				translate([2.15, 0, 0]) cc([0.9, 8.8, 0.2]);
-				hull() {
-					translate([0, -3.5, 0.8]) cube([5.6, 7, 1.1]);
-					translate([0, -3  , 0  ]) cube([5.6, 6, 1.1]);
-				}
-			}
-			hull() {
-				translate([-1, -3.25, 0.8]) cube([5, 6.5, 1.05]);
-				translate([-1, -2.75  , 0.05  ]) cube([5, 5.5, 1]);
-			}
-		}
-		translate([2, 0, 1.3]) cc([4, 3.4, 0.3]);
-	}
-}
-
-module soic(p=8, w=4) {
+module soic(p=8, w=4, name, value) {
 	l = ((p / 2)) * 1.25;
 	color(dark) difference() {
 		cc([w, l, 1]);
@@ -150,6 +135,8 @@ module soic(p=8, w=4) {
 							translate([-0.25, w / 2])
 								cube([0.5, w / 3, 0.4]);
 	}
+	color(white) translate([-0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top", size=w / 6);
+	color(white) translate([0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=name, halign="center", valign="bottom", size=w / 6);
 }
 
 module sot23(pins=3) {
@@ -174,7 +161,7 @@ module sot563() {
 }
 
 module bottom() {
-	translate([0, 0, -1.6 - ee2]) mirror([0, 0, 1]) children();
+	translate([0, 0, -1.6]) mirror([0, 0, 1]) children();
 }
 
 module pin(height = 10, width = 0.6, belowheight = 2) {
