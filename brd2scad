@@ -237,14 +237,13 @@ if (1) {
 				$loaded_libraries{$part{library}} = 1;
 			}
 			print "\t";
-			printf "bottom() " if $part{rot} =~ /^M/;
 			printf "translate([%g,%g,0]) ", $part{x}, $part{y};
-			printf "mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
+			printf "bottom() mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
 			printf "rotate([0, 0, %g]) ", $1 if $part{rot} =~ /R(\d+)/;
 
 			my $pn = $part{library}."_".$part{package};
 			$pn =~ s![^a-zA-Z0-9_]!_!g;
-			print "$pn(value=\"".$part{value}."\"); // $element" . (($part{rot} =~ /^M/)?" (bottom)":""). "\n";
+			print "$pn(name=\"".$element."\", value=\"".$part{value}."\"); // $element" . (($part{rot} =~ /^M/)?" (bottom)":""). "\n";
 		}
 	}
 	print "} // END COMPONENTS\n";
