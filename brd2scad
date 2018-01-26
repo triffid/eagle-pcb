@@ -10,9 +10,10 @@ if (@ARGV < 1) {
 	exit 0;
 }
 
-my @brd_offset = (0, 0);
-my $gerber_offset;
+my @brd_offset;
 my $scalefactor = 1.0 / 25.4 / 15.5;
+
+my @gerber_board_outline;
 
 sub gerber2plane {
 	my ($fn, $module_name) = @_;
@@ -74,7 +75,6 @@ sub gerber2plane {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
 				if ($contour) {
 					if ($op == 2) {
-						$gerber_offset = [$x + 0, $y + 0] unless defined $gerber_offset; # WARNING: this requires that board outline is always read first!
 						push @paths, [];
 					}
 
@@ -109,6 +109,11 @@ my $fileprefix = $ARGV[0]; $fileprefix =~ s/\.brd$//;
 my $xml = new XML::Simple;
 my $data = $xml->XMLin($ARGV[0]);
 
+if (! -e $fileprefix."_board_outline.gm1") {
+	print $fileprefix."_board_outline.gm1 doesn't exist - please run CAM and generate gerbers first!\n";
+	die $fileprefix."_board_outline.gm1 not found";
+}
+
 open(SCAD, ">", $fileprefix.".scad");
 
 select SCAD;
@@ -119,14 +124,25 @@ printf "include <eagle-pcb/common.scad>;\n\n";
 
 for (@{$data->{drawing}->{board}->{plain}->{wire}}) {
 	if ($_->{layer} == 20) {
-		@brd_offset = ($_->{x1}, $_->{y1});
-		last;
+		if (@brd_offset == 0) {
+			@brd_offset = ($_->{x1}, $_->{y1}, $_->{x1}, $_->{y1});
+		}
+		$brd_offset[0] = $_->{x1} if $_->{x1} < $brd_offset[0];
+		$brd_offset[1] = $_->{y1} if $_->{y1} < $brd_offset[1];
+		$brd_offset[2] = $_->{x1} if $_->{x1} > $brd_offset[2];
+		$brd_offset[3] = $_->{y1} if $_->{y1} > $brd_offset[3];
+		$brd_offset[0] = $_->{x2} if $_->{x2} < $brd_offset[0];
+		$brd_offset[1] = $_->{y2} if $_->{y2} < $brd_offset[1];
+		$brd_offset[2] = $_->{x2} if $_->{x2} > $brd_offset[2];
+		$brd_offset[3] = $_->{y2} if $_->{y2} > $brd_offset[3];
 	}
 }
 
 if (1) {
 	my $board;
-	open(TC, "<", $fileprefix."_board_outline.gm1") and do {
+	my @aabb;
+	open(TC, "<", $fileprefix."_board_outline.gm1") or die "Couldn't open ".$fileprefix."_board_outline.gm1: $!";
+	do {
 		my @apertures;
 		my $ca_text;
 		$board = "module 2dboard() { translate(gerber_offset) render() polygon(points=[\n";
@@ -138,8 +154,17 @@ if (1) {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
 
 				if ($op == 2) {
-					$gerber_offset = [$x + 0, $y + 0] unless defined $gerber_offset;
 					push @paths, [];
+				}
+
+				if (@aabb == 0) {
+					@aabb = ($x, $y, $x, $y);
+				}
+				else {
+					$aabb[0] = $x if $x < $aabb[0];
+					$aabb[1] = $y if $y < $aabb[1];
+					$aabb[2] = $x if $x > $aabb[2];
+					$aabb[3] = $y if $y > $aabb[3];
 				}
 
 				push @{$paths[$#paths]}, $index;
@@ -163,7 +188,7 @@ if (1) {
 		$board .= ");\n} // end 2dboard\n";
 		close TC;
 	};
-	printf "gerber_offset = [%g, %g];\n", $brd_offset[0] - $gerber_offset->[0], $brd_offset[1] - $gerber_offset->[1];
+	printf "gerber_offset = [%g, %g];\n", $brd_offset[0] - $aabb[0], $brd_offset[1] - $aabb[1];
 
 	print "\n$board";
 }
