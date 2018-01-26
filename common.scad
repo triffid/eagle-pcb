@@ -43,7 +43,7 @@ module electro_capacitor(d, h) {
 	color(silver) render() cc([d * 1.2, d / 4, 0.25]);
 }
 
-module rcsmd(s=[1, 0.5, 0.5]) {
+module rcsmd(s=[1, 0.5, 0.5], name, value) {
 	color (silver) render()
 		difference() {
 			cc([s.x, s.y, s.z?s.z:s.y]);
@@ -52,6 +52,7 @@ module rcsmd(s=[1, 0.5, 0.5]) {
 	color (black) render()
 		translate([0, 0, ee])
 			cc([s.x - ee2, s.y - ee2, (s.z?s.z:s.y) - ee2]);
+	color(white) translate([0, 0, s.z?s.z:s.y]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=s.y / 3);
 }
 
 module ledsmd(c=[0, 1, 0, 0.8], s=[2, 1.27]) {
