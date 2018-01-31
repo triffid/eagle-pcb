@@ -20,7 +20,7 @@ Add "brd2scad" script into your path (eg `ln -s $PWD/brd2scad ~/bin/`)
 
 2. `brd2scad yourproject.brd`
 
-3. `openscad yourproject.brd`
+3. `openscad yourproject.scad`
 
 ## Contributing
 
