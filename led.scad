@@ -25,3 +25,7 @@ module led_CHIPLED_0805(value="GREEN") {
 	else
 		ledsmd(c=red, s=[8 * 0.254, 5 * 0.254]);
 }
+
+module led_CHIP_LED0805(value) {
+	led_CHIPLED_0805(value=value);
+}

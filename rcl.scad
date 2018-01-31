@@ -24,6 +24,10 @@ module rcl_C0805(name, value) {
 	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value);
 }
 
+module rcl_C0805K(name, value) {
+	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value);
+}
+
 module rcl_R0805(name, value) {
 	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value);
 }
@@ -44,6 +48,10 @@ module rcl_PANASONIC_A(name, value) {
 
 module rcl_PANASONIC_B(name, value) {
 	electro_capacitor(4, 5, name=name, value=value);
+}
+
+module rcl_PANASONIC_D(name, value) {
+	electro_capacitor(6.3, 8, name=name, value=value);
 }
 
 module rcl_PANASONIC_E(name, value) {

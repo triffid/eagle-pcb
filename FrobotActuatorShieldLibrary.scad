@@ -30,8 +30,8 @@ module molex_5566(pins=6, ra=0) {
 	}
 }
 
-module FrobotActuatorShieldLibrary_XK_7() {
-	translate([1.15, -0.9, 0]) smt_xtal();
+module FrobotActuatorShieldLibrary_XK_7(name, value) {
+	translate([1.15, -0.9, 0]) smt_xtal(name=name, value=value);
 }
 
 module FrobotActuatorShieldLibrary_5566_2() {

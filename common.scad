@@ -31,7 +31,7 @@ module cc(size) {
 		square([size[0], size[1]], center=true);
 }
 
-module electro_capacitor(d, h) {
+module electro_capacitor(d, h, name, value) {
 	color(black) render() intersection() {
 		cc([d, d, h / 8]);
 		hull() {
@@ -41,6 +41,10 @@ module electro_capacitor(d, h) {
 	}
 	color(silver) render() cylinder(d=d * 0.95, h=h);
 	color(silver) render() cc([d * 1.2, d / 4, 0.25]);
+	color(black) render() {
+		translate([0,  0.1, h]) linear_extrude(height = ee) text(text=name , halign="center", valign="bottom", size=d / len(value));
+		translate([0, -0.1, h]) linear_extrude(height = ee) text(text=value, halign="center", valign="top"   , size=d / len(value));
+	}
 }
 
 module rcsmd(s=[1, 0.5, 0.5], name, value) {
@@ -64,7 +68,7 @@ module ledsmd(c=[0, 1, 0, 0.8], s=[2, 1.27]) {
 		cc([s.y + ee, s.y, s.x * 0.4]);
 }
 
-module tqfp(pins = 32, pitch = 0.8) {
+module tqfp(pins = 32, pitch = 0.8, name, value) {
 	color(black)
 		cc([(pins / 4 * pitch + 1), (pins / 4 * pitch + 1), 1]);
 	color(silver) {
@@ -77,9 +81,13 @@ module tqfp(pins = 32, pitch = 0.8) {
 		}
 	}
 	color(light) translate([((pins / -8) * pitch), ((pins / 4) * pitch) / 2, 1]) cylinder(d=0.6,h=ee, $fn=12);
+	color(white) render() {
+		translate([0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=name, halign="center", valign="bottom", size=(pins / 4 * pitch + 1) / len(value));
+		translate([-0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top", size=(pins / 4 * pitch + 1) / len(value));
+	}
 }
 
-module qfn(pins = 32, pitch = 0.5) {
+module qfn(pins = 32, pitch = 0.5, name, value) {
 	color(black)
 		cc([(pins / 4 * pitch + 1), (pins / 4 * pitch + 1), 1]);
 	color(silver) {
@@ -92,6 +100,10 @@ module qfn(pins = 32, pitch = 0.5) {
 		}
 	}
 	color(light) translate([((pins / -8) * pitch), ((pins / 4) * pitch) / 2, 1]) cylinder(d=0.6,h=ee, $fn=12);
+	color(white) render() rotate(90) {
+		translate([0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=name, halign="center", valign="bottom", size=(pins / 4 * pitch + 1) / len(value));
+		translate([-0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top", size=(pins / 4 * pitch + 1) / len(value));
+	}
 }
 
 module sw_membrane(size=[5, 5, 2]) {
@@ -108,7 +120,7 @@ module sw_membrane(size=[5, 5, 2]) {
 	}
 }
 
-module smt_xtal() {
+module smt_xtal(name, value) {
 	color(gold) render() hull() {
 		translate([-1.6 + 0.5, -1.25 + 0.5]) cylinder(r=0.5, h=0.5, $fn=12);
 		translate([ 1.6 - 0.5, -1.25 + 0.5]) cylinder(r=0.5, h=0.5, $fn=12);
@@ -117,30 +129,30 @@ module smt_xtal() {
 		cc([2.8, 2.1, 0.6]);
 	}
 	color(silver) cc([3.2, 2.5, 0.1]);
+	color(black) translate([0, 0, 0.6]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3.2 / len(value));
 }
 
-module soic(p=8, w=4, name, value) {
-	l = ((p / 2)) * 1.25;
+module soic(p=8, w=4, pitch = 1.27, name, value) {
+	l = (p / 2) * pitch;
 	color(dark) difference() {
 		cc([w, l, 1]);
-		translate([w / -2 + 0.6, (0 - (p / 4) + 0.5) * -1.25, 1])
+		translate([w / -2 + 0.6, (0 - (p / 4) + 0.5) * -pitch, 1])
 			sphere(d=0.8);
 	}
-	color(light) translate([w / -2 + 0.6, (0 - (p / 4) + 0.5) * -1.25, 0.9])
+	color(light) translate([w / -2 + 0.6, (0 - (p / 4) + 0.5) * -pitch, 0.9])
 		cylinder(d=1, h=ee);
-	color(silver) rotate(90)
-		for (i = [0:p/2 - 1]) {
-				for (r = [0:1])
-					translate([(i - (p / 4) + 0.5) * 1.25, 0])
-						rotate([0, 0, r * 180])
-							translate([-0.25, w / 2])
-								cube([0.5, w / 3, 0.4]);
+	color(silver) render()
+		for (r = [0:1]) translate([w * (r - 0.5), 0, 0])
+			for (i = [0:(p / 2) - 1])
+				translate([0, ((p / -4) + 0.5 + i) * pitch, ee])
+					cc([w / 3, pitch / 2, 0.2]);
+	color(white) render() rotate(90) {
+		translate([0,  0.1, 1]) linear_extrude(height = ee) text(text=name, halign="center", valign="bottom", size=l / len(value));
+		translate([0, -0.1, 1]) linear_extrude(height = ee) text(text=value, halign="center", valign="top", size=l / len(value));
 	}
-	color(white) translate([-0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top", size=w / 6);
-	color(white) translate([0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=name, halign="center", valign="bottom", size=w / 6);
 }
 
-module sot23(pins=3) {
+module sot23(pins=3, name, value) {
 	color(dark)
 		cc([3, 1.5]);
 	color(silver) {
@@ -155,10 +167,11 @@ module sot23(pins=3) {
 		if (pins >= 6)
 			translate([ 0,  1.2]) cc([0.5, 1, 0.25]);
 	}
+	color(white) render() translate([0, 0, 1.5]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3 / len(value));
 }
 
-module sot563() {
-	scale([0.4, 0.4, 0.5]) rotate(270) soic(p=6, w=2);
+module sot563(name, value) {
+	scale([0.4, 0.4, 0.5]) rotate(270) soic(p=6, w=2, name=name, value=value);
 }
 
 module bottom() {
