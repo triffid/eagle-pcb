@@ -59,6 +59,10 @@ module pinhead_2X03() {
 	pinhead(pins = 3, rows = 2);
 }
 
+module pinhead_2X03_90() {
+	pinhead_90(pins = 3, rows = 2);
+}
+
 module pinhead_2X05_90() {
 	pinhead_90(pins = 5, rows = 2);
 }
