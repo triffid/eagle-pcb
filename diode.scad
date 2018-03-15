@@ -13,8 +13,8 @@ module diode_SOT23(name, value) {
 module diode_SMC(name, value) {
 	color(black) render() cc([6.85, 5.9, 2.3]);
 	color(silver) render() cc([7.2, 3, 1.2]);
-	color(light) render() translate([6.85 / 2 - 0.5, 0, 2.3]) cc([1, 5.9, ee]);
-	color(white) render() translate([-0.5, 0, 2.3]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size = 5.8 / len(value));
+	color(light) render() translate([6.85 / -2 + 0.5, 0, 2.3]) cc([1, 5.9, ee]);
+	color(white) render() translate([0.5, 0, 2.3]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size = 5.8 / len(value));
 }
 
 module diode_SOD123(name, value) {
