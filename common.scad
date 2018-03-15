@@ -132,15 +132,15 @@ module smt_xtal(name, value) {
 	color(black) translate([0, 0, 0.6]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3.2 / len(value));
 }
 
-module soic(p=8, w=4, pitch = 1.27, name, value) {
+module soic(p=8, w=4, h = 1, pitch = 1.27, name, value) {
 	l = (p / 2) * pitch;
 	color(dark) difference() {
-		cc([w, l, 1]);
-		translate([w / -2 + 0.6, (0 - (p / 4) + 0.5) * -pitch, 1])
-			sphere(d=0.8);
+		cc([w, l, h]);
+		translate([w / -4, (0 - (p / 4) + 0.5) * -pitch, h])
+			sphere(d=w / 6, $fn=12);
 	}
-	color(light) translate([w / -2 + 0.6, (0 - (p / 4) + 0.5) * -pitch, 0.9])
-		cylinder(d=1, h=ee);
+	color(light) translate([w / -4, (0 - (p / 4) + 0.5) * -pitch, h])
+		cylinder(d=w / 6, h=ee, $fn=12);
 	color(silver) render()
 		for (r = [0:1]) translate([w * (r - 0.5), 0, 0])
 			for (i = [0:(p / 2) - 1])
@@ -154,24 +154,38 @@ module soic(p=8, w=4, pitch = 1.27, name, value) {
 
 module sot23(pins=3, name, value) {
 	color(dark)
-		cc([3, 1.5]);
+		cc([3, 1.3, 1]);
 	color(silver) {
-		translate([ 1,  1.2]) cc([0.5, 1, 0.25]);
-		translate([-1,  1.2]) cc([0.5, 1, 0.25]);
+		translate([ 0.95,  1.0]) cc([0.43, 0.7, 0.25]);
+		translate([-0.95,  1.0]) cc([0.43, 0.7, 0.25]);
 		if (pins != 4)
-			translate([ 0, -1.2]) cc([0.5, 1, 0.25]);
+			translate([ 0, -1.0]) cc([0.43, 0.7, 0.25]);
 		if (pins >= 4) {
-			translate([ 1, -1.2]) cc([0.5, 1, 0.25]);
-			translate([-1, -1.2]) cc([0.5, 1, 0.25]);
+			translate([ 0.95, -1.0]) cc([0.43, 0.7, 0.25]);
+			translate([-0.95, -1.0]) cc([0.43, 0.7, 0.25]);
 		}
 		if (pins >= 6)
-			translate([ 0,  1.2]) cc([0.5, 1, 0.25]);
+			translate([ 0,  1.0]) cc([0.43, 0.7, 0.25]);
 	}
-	color(white) render() translate([0, 0, 1.5]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3 / len(value));
+	color(white) render() translate([0, 0, 1]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3 / len(value));
+}
+
+module sot223(name, value) {
+	color(dark)
+		cc([6.5, 3.5, 1.6]);
+	color(silver) render() {
+		translate([0, 2, 0])
+			cc([3, 3, 0.3]);
+		for (i=[0:2]) {
+			translate([2.3 * (i - 1), -2, 0])
+				cc([0.7, 3, 0.3]);
+		}
+	}
+	color(white) render() translate([0, 0, 1.6]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=6.5 / len(value));
 }
 
 module sot563(name, value) {
-	scale([0.4, 0.4, 0.5]) rotate(270) soic(p=6, w=2, name=name, value=value);
+	rotate(90) soic(p=6, w=1.1, h=0.5, pitch=0.5, name=name, value=value);
 }
 
 module bottom() {
