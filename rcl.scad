@@ -36,6 +36,10 @@ module rcl_R1210(name, value) {
 	rcsmd([12 * 0.254, 10 * 0.254, 0.5], name=name, value=value);
 }
 
+module rcl_R2512(name, value) {
+	rcsmd([25 * 0.254, 12 * 0.254, 0.5], name=name, value=value);
+}
+
 module rcl_CT3216(name, value) {
 	color([1, 0.9, 0.2]) cc([3.2, 1.6, 1.5]);
 	color(orange) translate([-1.35, 0, 1.5]) cc([0.5, 1.6, ee]);
@@ -48,6 +52,10 @@ module rcl_PANASONIC_A(name, value) {
 
 module rcl_PANASONIC_B(name, value) {
 	electro_capacitor(4, 5, name=name, value=value);
+}
+
+module rcl_PANASONIC_C(name, value) {
+	electro_capacitor(5, 6.3, name=name, value=value);
 }
 
 module rcl_PANASONIC_D(name, value) {
