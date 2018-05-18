@@ -36,6 +36,7 @@ OpenSCAD will generate warnings for missing library.scads and also missing modul
 
 ## Bugs & TODO
 
-* Only tested with Eagle-7.6 so far, as Eagle-8's UI infuriates me enough that I almost immediately downgrade every time I try.
+* Tested with Eagle 7.6, Eagle 8 and Eagle 9.
+* Does not correctly handle boards with arcs on the border, this type of board will cause the PCB substrate to look broken and the components to be misaligned with their pads.
 * Haven't even attempted to make things robust or comprehensive, just fixed issues as they've appeared.
 * Would be nice to generate 3D solely from the brd, at the moment we require gerbers for all the board layers and use the brd just for component information
