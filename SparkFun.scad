@@ -16,3 +16,11 @@ module SparkFun_USB_B_PTH(name, value) {
 module SparkFun_0603(name, value) {
 	rcsmd([6 * 0.254, 3 * 0.254], name=name, value=value);
 }
+
+module SparkFun_0402_RES(name, value) {
+	rcsmd([4 * 0.254, 2 * 0.254], name=name, value=value);
+}
+
+module SparkFun_0402_CAP(name, value) {
+	rcsmd([4 * 0.254, 2 * 0.254], name=name, value=value);
+}

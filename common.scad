@@ -87,22 +87,22 @@ module tqfp(pins = 32, pitch = 0.8, name, value) {
 	}
 }
 
-module qfn(pins = 32, pitch = 0.5, name, value) {
+module qfn(pins = 32, pitch = 0.5, h = 1, sides = 4, name, value) {
 	color(black)
-		cc([(pins / 4 * pitch + 1), (pins / 4 * pitch + 1), 1]);
+		cc([(pins / sides * pitch + 1), (pins / sides * pitch + 1), h]);
 	color(silver) {
-		for (r = [0:3]) {
-			rotate([0, 0, 90 * r]) {
-				for (i = [0:pins/4 - 1]) {
-					translate([pitch / 2 + ((pins / -8) * pitch) + (i * pitch), (pins / 4 * pitch + 1) / 2, 0]) cc([pitch / 2, ee2, 0.25]);
+		for (r = [0:sides-1]) {
+			rotate([0, 0, (360 / sides) * r]) {
+				for (i = [0:pins/sides - 1]) {
+					translate([pitch / 2 + ((pins / -8) * pitch) + (i * pitch), (pins / sides * pitch + 1) / 2, 0]) cc([pitch / 2, ee2, h / 4]);
 				}
 			}
 		}
 	}
-	color(light) translate([((pins / -8) * pitch), ((pins / 4) * pitch) / 2, 1]) cylinder(d=0.6,h=ee, $fn=12);
+	color(light) translate([((pins / -2 / sides) * pitch), ((pins / sides) * pitch) / 2, 1]) cylinder(d=0.6,h=ee, $fn=12);
 	color(white) render() rotate(90) {
-		translate([0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=name, halign="center", valign="bottom", size=(pins / 4 * pitch + 1) / len(value));
-		translate([-0.1, 0, 1]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top", size=(pins / 4 * pitch + 1) / len(value));
+		translate([0.1, 0, h]) linear_extrude(height = ee) rotate(-90) text(text=name, halign="center", valign="bottom", size=(pins / 4 * pitch + 1) / len(value));
+		translate([-0.1, 0, h]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top", size=(pins / 4 * pitch + 1) / len(value));
 	}
 }
 
