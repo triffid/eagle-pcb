@@ -147,8 +147,8 @@ module soic(p=8, w=4, h = 1, pitch = 1.27, name, value) {
 				translate([0, ((p / -4) + 0.5 + i) * pitch, ee])
 					cc([w / 3, pitch / 2, 0.2]);
 	color(white) render() rotate(90) {
-		translate([0,  0.1, 1]) linear_extrude(height = ee) text(text=name, halign="center", valign="bottom", size=l / len(value));
-		translate([0, -0.1, 1]) linear_extrude(height = ee) text(text=value, halign="center", valign="top", size=l / len(value));
+		translate([0,  0.1, h]) linear_extrude(height = ee) text(text=name, halign="center", valign="bottom", size=l / len(value));
+		translate([0, -0.1, h]) linear_extrude(height = ee) text(text=value, halign="center", valign="top", size=l / len(value));
 	}
 }
 
