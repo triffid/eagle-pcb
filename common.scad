@@ -188,8 +188,8 @@ module sot563(name, value) {
 	rotate(90) soic(p=6, w=1.1, h=0.5, pitch=0.5, name=name, value=value);
 }
 
-module bottom() {
-	translate([0, 0, -1.6]) mirror([0, 0, 1]) children();
+module bottom(thickness = 1.6) {
+	translate([0, 0, -thickness]) mirror([0, 0, 1]) children();
 }
 
 module pin(height = 10, width = 0.6, belowheight = 2) {

@@ -137,7 +137,7 @@ select SCAD;
 
 printf "// Generated from %s\n", $ARGV[0];
 printf "// Got EAGLE version %s\n\n", $data->{version};
-printf "include <eagle-pcb/common.scad>;\n\n";
+printf "include <eagle-pcb/common.scad>;\n\nboard_thickness = 1.6;\n";
 
 for (@{$data->{drawing}->{board}->{plain}->{wire}}) {
 	if ($_->{layer} == 20) {
@@ -164,15 +164,15 @@ if (1) {
 		my $ca_text;
 		$board = "module 2dboard() { translate(gerber_offset) render() polygon(points=[\n";
 		my $index = 0;
-		my @paths;
+		my @paths = ([]);
 		while (<TC>) {
 			chomp; s/\r//g;
 			/X(\d+)Y(\d+)D(\d+)/ && do {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
 
-				if ($op == 2) {
-					push @paths, [];
-				}
+# 				if ($op == 2) {
+# 					push @paths, [];
+# 				}
 
 				if (@aabb == 0) {
 					@aabb = ($x, $y, $x, $y);
@@ -205,7 +205,7 @@ if (1) {
 		$board .= ");\n} // end 2dboard\n";
 		close TC;
 	};
-	printf "gerber_offset = [%g, %g];\n", $brd_offset[0] - $aabb[0], $brd_offset[1] - $aabb[1];
+	printf "gerber_offset = [%g, %g]; // \n", $brd_offset[0] - $aabb[0], $brd_offset[1] - $aabb[1];
 
 	print "\n$board";
 }
@@ -248,11 +248,11 @@ print "color(light) render(convexity=5) linear_extrude(0.035) difference() { ger
 print "color(soldermask) render(convexity=5) linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_tstop(); }\n";
 print "color(white) render(convexity=5) linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_tsilk(); offset(0.1) gerber_tstop(); offset(0.1) drills(); } 2dboard(); }\n\n";
 
-print "color(fr4) render(convexity=5) translate([0, 0, -1.6]) linear_extrude(1.6) difference() { 2dboard(); drills(); }\n\n";
+print "color(fr4) render(convexity=5) translate([0, 0, -board_thickness]) linear_extrude(board_thickness) difference() { 2dboard(); drills(); }\n\n";
 
-print "color(light) render(convexity=5) bottom() linear_extrude(0.035) difference() { gerber_bcopper(); drills(); }\n";
-print "color(soldermask) render(convexity=5) bottom() linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_bstop(); }\n";
-print "color(white) render(convexity=5) bottom() linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); offset(0.1) gerber_bstop(); offset(0.1) drills(); } 2dboard(); }\n";
+print "color(light) render(convexity=5) bottom(board_thickness) linear_extrude(0.035) difference() { gerber_bcopper(); drills(); }\n";
+print "color(soldermask) render(convexity=5) bottom(board_thickness) linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_bstop(); }\n";
+print "color(white) render(convexity=5) bottom(board_thickness) linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); offset(0.1) gerber_bstop(); offset(0.1) drills(); } 2dboard(); }\n";
 
 print "\n";
 
@@ -280,7 +280,7 @@ if (1) {
 			}
 			print "\t";
 			printf "translate([%g,%g,0]) ", $part{x}, $part{y};
-			printf "bottom() mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
+			printf "bottom(board_thickness) mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
 			printf "rotate([0, 0, %g]) ", $1 if $part{rot} =~ /R(\d+)/;
 
 			my $pn = $part{library}."_".$part{package};
