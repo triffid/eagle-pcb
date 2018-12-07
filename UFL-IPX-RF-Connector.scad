@@ -1,7 +1,7 @@
 include <eagle-pcb/common.scad>
 
 module UFL_IPX_RF_Connector_UFL() {
-	color(black) cc([2.6, 2.6, 0.35]);
+	color(light) cc([2.6, 2.6, 0.35]);
 	color(gold) render() {
 		hull() {
 			cylinder(d=0.5, h=0.1, $fn=12);
