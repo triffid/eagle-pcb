@@ -164,15 +164,15 @@ if (1) {
 		my $ca_text;
 		$board = "module 2dboard() { translate(gerber_offset) render() polygon(points=[\n";
 		my $index = 0;
-		my @paths = ([]);
+		my @paths = ();
 		while (<TC>) {
 			chomp; s/\r//g;
 			/X(\d+)Y(\d+)D(\d+)/ && do {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
 
-# 				if ($op == 2) {
-# 					push @paths, [];
-# 				}
+				if ($op == 2) {
+					push @paths, [];
+				}
 
 				if (@aabb == 0) {
 					@aabb = ($x, $y, $x, $y);
