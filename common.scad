@@ -32,18 +32,27 @@ module cc(size) {
 }
 
 module electro_capacitor(d, h, name, value) {
-	color(black) render() intersection() {
-		cc([d, d, h / 8]);
-		hull() {
-			translate([d/24, 0, 0]) rotate(45) cc([d, d, h / 8]);
-			translate([-d, 0, 0]) rotate(45) cc([d, d, h / 8]);
+	color(black) render() {
+		intersection() {
+			cc([d, d, h / 8]);
+			hull() {
+				translate([d/24, 0, 0]) rotate(45) cc([d, d, h / 8]);
+				translate([-d, 0, 0]) rotate(45) cc([d, d, h / 8]);
+			}
+		}
+		translate([0,  0.1, h + ee]) linear_extrude(height = ee) text(text=name , halign="center", valign="bottom", size=d / len(value));
+		translate([0, -0.1, h + ee]) linear_extrude(height = ee) text(text=value, halign="center", valign="top"   , size=d / len(value));
+		intersection() {
+			translate([0, 0, h]) cylinder(d=d * 0.95 + ee, h=ee);
+			translate([d / -2, 0, 1]) cc([d / 2, d, h * 2]);
 		}
 	}
-	color(silver) render() cylinder(d=d * 0.95, h=h);
-	color(silver) render() cc([d * 1.2, d / 4, 0.25]);
-	color(black) render() {
-		translate([0,  0.1, h]) linear_extrude(height = ee) text(text=name , halign="center", valign="bottom", size=d / len(value));
-		translate([0, -0.1, h]) linear_extrude(height = ee) text(text=value, halign="center", valign="top"   , size=d / len(value));
+	color(silver) render() {
+		cylinder(d=d * 0.95, h=h);
+		cc([d * 1.2, d / 4, 0.25]);
+		intersection() {
+			translate([0, -0.1, h + ee]) linear_extrude(height = ee) text(text=value, halign="center", valign="top"   , size=d / len(value));
+		}
 	}
 }
 
@@ -56,7 +65,7 @@ module rcsmd(s=[1, 0.5, 0.5], name, value) {
 	color (black) render()
 		translate([0, 0, ee])
 			cc([s.x - ee2, s.y - ee2, (s.z?s.z:s.y) - ee2]);
-	color(white) translate([0, 0, s.z?s.z:s.y]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=s.y / 3);
+	color(white) translate([0, 0, s.z?s.z:s.y]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=s.y / len(value));
 }
 
 module ledsmd(c=[0, 1, 0, 0.8], s=[2, 1.27]) {
@@ -89,20 +98,20 @@ module tqfp(pins = 32, pitch = 0.8, name, value) {
 
 module qfn(pins = 32, pitch = 0.5, h = 1, sides = 4, name, value) {
 	color(black)
-		cc([(pins / sides * pitch + 1), (pins / sides * pitch + 1), h]);
+		cc([((pins + 1) / sides * pitch), ((pins + 1) / sides * pitch), h]);
 	color(silver) {
 		for (r = [0:sides-1]) {
-			rotate([0, 0, (360 / sides) * r]) {
+			rotate([0, 0, 90 + (360 / sides) * r]) {
 				for (i = [0:pins/sides - 1]) {
-					translate([pitch / 2 + ((pins / -8) * pitch) + (i * pitch), (pins / sides * pitch + 1) / 2, 0]) cc([pitch / 2, ee2, h / 4]);
+					translate([pitch / 2 + ((pins / sides / -2) * pitch) + (i * pitch), ((pins + 1) / sides * pitch) / 2, 0]) cc([pitch / 2, ee2, h / 4]);
 				}
 			}
 		}
 	}
-	color(light) translate([((pins / -2 / sides) * pitch), ((pins / sides) * pitch) / 2, 1]) cylinder(d=0.6,h=ee, $fn=12);
+	color(light) translate([-((pins + 1) / sides * pitch) / 2 * 3/4, ((pins + 1) / sides * pitch) / 2 * 3/4, h]) cylinder(d=0.6,h=ee, $fn=12);
 	color(white) render() rotate(90) {
-		translate([0.1, 0, h]) linear_extrude(height = ee) rotate(-90) text(text=name, halign="center", valign="bottom", size=(pins / 4 * pitch + 1) / len(value));
-		translate([-0.1, 0, h]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top", size=(pins / 4 * pitch + 1) / len(value));
+		translate([0.1, 0, h])  linear_extrude(height = ee) rotate(-90) text(text=name,  halign="center", valign="bottom", size=((pins + 1) / sides * pitch) / len(value));
+		translate([-0.1, 0, h]) linear_extrude(height = ee) rotate(-90) text(text=value, halign="center", valign="top",    size=((pins + 1) / sides * pitch) / len(value));
 	}
 }
 
