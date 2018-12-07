@@ -32,6 +32,10 @@ module rcl_R0805(name, value) {
 	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value);
 }
 
+module rcl_C1206K(name, value) {
+	rcsmd([12 * 0.254, 6 * 0.254], name=name, value=value);
+}
+
 module rcl_R1210(name, value) {
 	rcsmd([12 * 0.254, 10 * 0.254, 0.5], name=name, value=value);
 }
