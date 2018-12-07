@@ -1,9 +1,10 @@
 include <eagle-pcb/common.scad>;
 
 module jst_ph(p=2) {
-	color(silver) for (i = [0:p - 1])
-		translate([i * 2 - p + 1, 0, -2]) hull() {
-			rotate(45) cylinder(d=0.5 / cos(180/4), h=6.5, $fn=4);
+	color(silver) render() for (i = [0:p - 1])
+		translate([i * 2 - p + 1, 0, -2]) rotate(45) hull() {
+			cylinder(d=0.5 / cos(180/4), h=6.5, $fn=4);
+			translate([0, 0, -0.25]) cylinder(d=0.25 / cos(180/4), h=ee, $fn=4);
 			cylinder(d=0.25, h=7, $fn=4);
 		}
 	color(light) render() difference() {
