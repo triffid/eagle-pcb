@@ -1,11 +1,11 @@
 include <eagle-pcb/common.scad>;
 
 module rcl_C0402K(name, value) {
-	rcsmd([4 * 0.254, 2 * 0.254], name=name, value=value);
+	rcsmd([4 * 0.254, 2 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
 }
 
 module rcl_C0402(name, value) {
-	rcsmd([4 * 0.254, 2 * 0.254], name=name, value=value);
+	rcsmd([4 * 0.254, 2 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
 }
 
 module rcl_R0402(name, value) {
@@ -17,15 +17,19 @@ module rcl_R0603(name, value) {
 }
 
 module rcl_C0603(name, value) {
-	rcsmd([6 * 0.254, 3 * 0.254], name=name, value=value);
+	rcsmd([6 * 0.254, 3 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
+}
+
+module rcl_C0603K(name, value) {
+	rcsmd([6 * 0.254, 3 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
 }
 
 module rcl_C0805(name, value) {
-	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value);
+	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
 }
 
 module rcl_C0805K(name, value) {
-	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value);
+	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
 }
 
 module rcl_R0805(name, value) {
@@ -33,7 +37,7 @@ module rcl_R0805(name, value) {
 }
 
 module rcl_C1206K(name, value) {
-	rcsmd([12 * 0.254, 6 * 0.254], name=name, value=value);
+	rcsmd([12 * 0.254, 6 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
 }
 
 module rcl_R1210(name, value) {
@@ -89,10 +93,6 @@ module rcl_C050_030X075(name, value) {
 		translate([ 2.54, 0, 5.8]) sphere(d=0.8, $fn=8);
 		translate([-2.54, 0, 5.8]) sphere(d=0.8, $fn=8);
 	}
-}
-
-module rcl_C0603K(name, value) {
-	rcsmd([6 * 0.254, 3 * 0.254], name=name, value=value);
 }
 
 module rcl_D_7343_31R(name, value) {

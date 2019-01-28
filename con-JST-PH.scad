@@ -14,6 +14,6 @@ module jst_ph(p=2) {
 	}
 }
 
-module con_JST_PH_B2B_PH_K_S() {
+module con_JST_PH_B2B_PH_K_S(name, value) {
 	jst_ph(2);
 }

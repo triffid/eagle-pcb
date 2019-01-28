@@ -15,6 +15,8 @@ light = [0.9, 0.9, 1];
 white = [1, 1, 1];
 black = [0, 0, 0];
 
+capacitor_brown = [0.5,0.3,0.1,1];
+
 pcbgreen = [0, 0.55, 0];
 
 soldermask = [0, 0.5, 0, 0.6];
@@ -56,13 +58,13 @@ module electro_capacitor(d, h, name, value) {
 	}
 }
 
-module rcsmd(s=[1, 0.5, 0.5], name, value) {
+module rcsmd(s=[1, 0.5, 0.5], name, value, bodycolor=black) {
 	color (silver) render()
 		difference() {
 			cc([s.x, s.y, s.z?s.z:s.y]);
 			translate([0, 0, (s.z?s.z:s.y) / -2]) cc([s.x / 2, s.y * 2, (s.z?s.z:s.y) * 2]);
 		}
-	color (black) render()
+	color (bodycolor) render()
 		translate([0, 0, ee])
 			cc([s.x - ee2, s.y - ee2, (s.z?s.z:s.y) - ee2]);
 	color(white) translate([0, 0, s.z?s.z:s.y]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=s.y / len(value));

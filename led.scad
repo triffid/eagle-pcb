@@ -1,6 +1,6 @@
 include <eagle-pcb/common.scad>;
 
-module led_CHIP_LED0603(value="GREEN") {
+module led_CHIP_LED0603(name, value="GREEN") {
 	if (value == "green" || value == "GREEN")
 		ledsmd(c=green, s=[6 * 0.234, 3 * 0.234]);
 	else if (value == "yellow" || value == "YELLOW")
@@ -13,7 +13,7 @@ module led_CHIP_LED0603(value="GREEN") {
 		ledsmd(c=red, s=[6 * 0.234, 3 * 0.234]);
 }
 
-module led_CHIPLED_0805(value="GREEN") {
+module led_CHIPLED_0805(name, value="GREEN") {
 	if (value == "green" || value == "GREEN")
 		ledsmd(c=green, s=[8 * 0.254, 5 * 0.254]);
 	else if (value == "yellow" || value == "YELLOW")
@@ -26,7 +26,7 @@ module led_CHIPLED_0805(value="GREEN") {
 		ledsmd(c=red, s=[8 * 0.254, 5 * 0.254]);
 }
 
-module led_CHIP_LED0805(value) {
+module led_CHIP_LED0805(name, value) {
 	led_CHIPLED_0805(value=value);
 }
 
