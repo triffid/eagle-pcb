@@ -1,7 +1,7 @@
 include <eagle-pcb/common.scad>
 
-module resistor_R0402() {
-	rcsmd([4 * 0.254, 2 * 0.254]);
+module resistor_R0402(name, value) {
+	rcsmd([4 * 0.254, 2 * 0.254], name=name, value=value);
 }
 
 module resistor_R0603(name, value) {

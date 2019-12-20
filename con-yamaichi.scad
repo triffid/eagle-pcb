@@ -1,6 +1,6 @@
 include <eagle-pcb/common.scad>;
 
-module con_yamaichi_USB_A003() {
+module con_yamaichi_USB_A003(name, value) {
 	color(silver) difference() {
 		union() {
 			translate([0, 13.8 / 2, 0]) cc([12.2, 13.8, 4]);

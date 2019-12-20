@@ -1,6 +1,7 @@
 include <eagle-pcb/common.scad>;
+include <eagle-pcb/con-yamaichi.scad>;
 
-module SparkFun_Connectors_USB_AB_MICRO_SMD() {
+module SparkFun_Connectors_USB_AB_MICRO_SMD(name, value) {
 	color(silver) render()
 	translate([-2.25, 0, 0])
 	group() {
@@ -56,4 +57,8 @@ module SparkFun_Connectors_POWER_JACK_PTH(name, value) {
 			translate([0, 7.5, -2])    rotate([0, 90, 90]) cylinder(d=2.5, h=0.2);
 		}
 	}
+}
+
+module SparkFun_Connectors_USB_A_S_SILK_FEMALE(name, value) {
+	translate([-7, 0, 0]) rotate(270) con_yamaichi_USB_A003(name, value);
 }

@@ -244,15 +244,15 @@ gerber2plane($fileprefix."_bottom_silk.gbo", "gerber_bsilk");
 
 print "\n";
 
-print "color(light) render(convexity=5) linear_extrude(0.035) difference() { gerber_tcopper(); drills(); }\n";
-print "color(soldermask) render(convexity=5) linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_tstop(); }\n";
-print "color(white) render(convexity=5) linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_tsilk(); offset(0.1) gerber_tstop(); offset(0.1) drills(); } 2dboard(); }\n\n";
-
 print "color(fr4) render(convexity=5) translate([0, 0, -board_thickness]) linear_extrude(board_thickness) difference() { 2dboard(); drills(); }\n\n";
 
-print "color(light) render(convexity=5) bottom(board_thickness) linear_extrude(0.035) difference() { gerber_bcopper(); drills(); }\n";
-print "color(soldermask) render(convexity=5) bottom(board_thickness) linear_extrude(0.035 + ee) difference() { 2dboard(); gerber_bstop(); }\n";
-print "color(white) render(convexity=5) bottom(board_thickness) linear_extrude(0.035 + ee + ee) intersection() { difference() { gerber_bsilk(); offset(0.1) gerber_bstop(); offset(0.1) drills(); } 2dboard(); }\n";
+print "color(light) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee) difference() { gerber_tcopper(); drills(); }\n";
+print "color(soldermask) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee2) difference() { 2dboard(); gerber_tstop(); }\n";
+print "color(white) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee2 + ee) intersection() { difference() { gerber_tsilk(); offset(0.1) gerber_tstop(); offset(0.1) drills(); } 2dboard(); }\n\n";
+
+print "color(light) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee) difference() { gerber_bcopper(); drills(); }\n";
+print "color(soldermask) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee2) difference() { 2dboard(); gerber_bstop(); }\n";
+print "color(white) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee2 + ee) intersection() { difference() { gerber_bsilk(); offset(0.1) gerber_bstop(); offset(0.1) drills(); } 2dboard(); }\n";
 
 print "\n";
 
@@ -270,22 +270,24 @@ if (1) {
 		}
 	}
 
-	print "translate([0, 0, ee2]) group() { // COMPONENTS\n";
+	print "translate([0, 0, 0.035 + ee2 + ee2]) group() { // COMPONENTS\n";
 	for my $element (keys %{$data->{drawing}->{board}->{elements}->{element}}) {
 		my %part = %{$data->{drawing}->{board}->{elements}->{element}->{$element}};
-		if (defined $part{x}) {
-			if (! defined $loaded_libraries{$part{library}}) {
-				printf "\tuse <eagle-pcb/%s.scad>;\n", $part{library};
-				$loaded_libraries{$part{library}} = 1;
-			}
-			print "\t";
-			printf "translate([%g,%g,0]) ", $part{x}, $part{y};
-			printf "bottom(board_thickness) mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
-			printf "rotate([0, 0, %g]) ", $1 if $part{rot} =~ /R(\d+)/;
+		if ($part{library} !~ /^(testpad|testpoint)$/i) {
+			if (defined $part{x} && $part{value} !~ /^DNP$/i) {
+				if (! defined $loaded_libraries{$part{library}}) {
+					printf "\tuse <eagle-pcb/%s.scad>;\n", $part{library};
+					$loaded_libraries{$part{library}} = 1;
+				}
+				print "\t";
+				printf "translate([%g,%g,0]) ", $part{x}, $part{y};
+				printf "bottom(board_thickness + 2 * (0.035 + ee2 + ee2)) mirror([1, 0, 0]) " if $part{rot} =~ /^M/;
+				printf "rotate([0, 0, %g]) ", $1 if $part{rot} =~ /R(\d+)/;
 
-			my $pn = $part{library}."_".$part{package};
-			$pn =~ s![^a-zA-Z0-9_]!_!g;
-			print "$pn(name=\"".$element."\", value=\"".$part{value}."\"); // $element" . (($part{rot} =~ /^M/)?" (bottom)":""). "\n";
+				my $pn = $part{library}."_".$part{package};
+				$pn =~ s![^a-zA-Z0-9_]!_!g;
+				print "$pn(name=\"".$element."\", value=\"".$part{value}."\"); // $element" . (($part{rot} =~ /^M/)?" (bottom)":""). "\n";
+			}
 		}
 	}
 	print "} // END COMPONENTS\n";

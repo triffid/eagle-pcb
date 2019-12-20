@@ -1,33 +1,23 @@
 include <eagle-pcb/common.scad>;
 
 module led_CHIP_LED0603(name, value="GREEN") {
-	if (value == "green" || value == "GREEN")
-		ledsmd(c=green, s=[6 * 0.234, 3 * 0.234]);
-	else if (value == "yellow" || value == "YELLOW")
-		ledsmd(c=yellow, s=[6 * 0.234, 3 * 0.234]);
-	else if (value == "blue" || value == "BLUE")
-		ledsmd(c=[0.3,0.3,1], s=[6 * 0.234, 3 * 0.234]);
-	else if (value == "white" || value == "WHITE")
-		ledsmd(c=white, s=[6 * 0.234, 3 * 0.234]);
-	else
-		ledsmd(c=red, s=[6 * 0.234, 3 * 0.234]);
+		ledsmd(name=name, value=value, s=[6 * 0.234, 3 * 0.234]);
+}
+
+module led_CHIPLED_0603(name, value="GREEN") {
+	led_CHIP_LED0603(name, value);
 }
 
 module led_CHIPLED_0805(name, value="GREEN") {
-	if (value == "green" || value == "GREEN")
-		ledsmd(c=green, s=[8 * 0.254, 5 * 0.254]);
-	else if (value == "yellow" || value == "YELLOW")
-		ledsmd(c=yellow, s=[8 * 0.254, 5 * 0.254]);
-	else if (value == "blue" || value == "BLUE")
-		ledsmd(c=[0.3,0.3,1], s=[8 * 0.254, 5 * 0.254]);
-	else if (value == "white" || value == "WHITE")
-		ledsmd(c=white, s=[8 * 0.254, 5 * 0.254]);
-	else
-		ledsmd(c=red, s=[8 * 0.254, 5 * 0.254]);
+	ledsmd(name=name, value=value, s=[8 * 0.254, 5 * 0.254]);
 }
 
-module led_CHIP_LED0805(name, value) {
-	led_CHIPLED_0805(value=value);
+module led_CHIP_LED0805(name, value = "GREEN") {
+	led_CHIPLED_0805(name = name, value = value);
+}
+
+module led_1206(name, value="GREEN") {
+	rotate(90) ledsmd(name=name, value=value, s=[12 * 0.254, 6 * 0.254]);
 }
 
 module led_LED3MM(name, value) {

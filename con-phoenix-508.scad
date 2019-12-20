@@ -30,3 +30,33 @@ module con_phoenix_508_MKDSN1_5_2_5_08(pins=2, pitch=5.08) {
 		}
 	}
 }
+
+module con_phoenix_508_MSTBA(pins=2, pitch=5.08) {
+	translate([0, 1, 0]) {
+		color(green) render()
+		difference() {
+			cc([pins * pitch + 2, 12, 8.6]);
+			translate([0, -2.5, 0]) {
+				render() for (i=[0:pins-1]) {
+					translate([((pins - 1) * -0.5 + i) * pitch, 0, 0]) {
+						intersection() {
+							translate([0, 0, 0]) cc([pitch + ee, 12, 7.6]);
+							translate([0, 6, 4.3]) rotate([90, 0, 0]) cylinder(d=pitch + 2, h=12);
+						}
+					}
+				}
+				translate([0, 0, 4.3]) cc([pins * pitch + ee2, 12, 3.3]);
+			}
+		}
+		color(silver) render() {
+			for (i=[0:pins-1]) {
+				translate([((pins - 1) * -0.5 + i) * pitch, 4.05, 0]) pin(height=4.3, width=1.0, belowheight = 3.5);
+				translate([((pins - 1) * -0.5 + i) * pitch, 5, 4.3]) rotate([90, 0, 0]) pin(height=10, width=1.0, belowheight = 0);
+			}
+		}
+	}
+}
+
+module con_phoenix_508_MSTBA2(name, value) {
+	con_phoenix_508_MSTBA(pins=2, pitch=5.08);
+}

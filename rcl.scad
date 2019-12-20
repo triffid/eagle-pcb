@@ -36,12 +36,20 @@ module rcl_R0805(name, value) {
 	rcsmd([8 * 0.254, 5 * 0.254], name=name, value=value);
 }
 
+module rcl_R1206(name, value) {
+	rcsmd([12 * 0.254, 6 * 0.254], name=name, value=value);
+}
+
 module rcl_C1206K(name, value) {
 	rcsmd([12 * 0.254, 6 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
 }
 
 module rcl_R1210(name, value) {
 	rcsmd([12 * 0.254, 10 * 0.254, 0.5], name=name, value=value);
+}
+
+module rcl_R2010(name, value) {
+	rcsmd([20 * 0.254, 10 * 0.254, 0.5], name=name, value=value);
 }
 
 module rcl_R2512(name, value) {
@@ -102,4 +110,10 @@ module rcl_D_7343_31R(name, value) {
 
 	color(white) translate([0,  0.3, 1.8]) linear_extrude(height=ee) text(text=name, valign="bottom", halign="center", size=1);
 	color(white) translate([0, -0.3, 1.8]) linear_extrude(height=ee) text(text=value, valign="top", halign="center", size=1);
+}
+
+module rcl_RTRIM3314J(name, value) {
+	color(silver) cc([4.5, 4.5, 3]);
+	color(dark) cylinder(d=3, h=3 + ee);
+	color(white) translate([0, 0, 3 + ee2]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3 / len(value));
 }

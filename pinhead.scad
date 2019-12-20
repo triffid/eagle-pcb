@@ -47,12 +47,32 @@ module pinhead_90(name, value, pins = 3, rows = 1, pitch = 2.54) {
 	}
 }
 
+module pinhead_1X01(name, value) {
+	pinhead(pins = 1);
+}
+
+module pinhead_1X02(name, value) {
+	pinhead(pins = 2);
+}
+
+module pinhead_1X03(name, value) {
+	pinhead(pins = 3);
+}
+
 module pinhead_1X03_90(name, value) {
 	pinhead_90(pins = 3, rows = 1);
 }
 
-module pinhead_1X01(name, value) {
-	pinhead(pins = 1);
+module pinhead_1X04_90(name, value) {
+	pinhead_90(pins=4, rows=1);
+}
+
+module pinhead_1X05(name, value) {
+	pinhead(pins = 5);
+}
+
+module pinhead_1X06(name, value) {
+	pinhead(pins = 6);
 }
 
 module pinhead_2X03(name, value) {
@@ -61,6 +81,10 @@ module pinhead_2X03(name, value) {
 
 module pinhead_2X04(name, value) {
 	pinhead(pins = 4, rows = 2);
+}
+
+module pinhead_2X06(name, value) {
+	pinhead(pins = 6, rows = 2);
 }
 
 module pinhead_2X03_90(name, value) {
@@ -75,6 +99,6 @@ module pinhead_2X17_90(name, value) {
 	pinhead_90(pins = 17, rows = 2);
 }
 
-module pinhead_1X04_90(name, value) {
-	pinhead_90(pins=4, rows=1);
+module pinhead_2X14_90(name, value) {
+	pinhead_90(pins = 14, rows = 2);
 }
