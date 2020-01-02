@@ -48,6 +48,10 @@ module rcl_R1210(name, value) {
 	rcsmd([12 * 0.254, 10 * 0.254, 0.5], name=name, value=value);
 }
 
+module rcl_C1210K(name, value) {
+	rcsmd([12 * 0.254, 10 * 0.254], name=name, value=value, bodycolor=capacitor_brown);
+}
+
 module rcl_R2010(name, value) {
 	rcsmd([20 * 0.254, 10 * 0.254, 0.5], name=name, value=value);
 }
