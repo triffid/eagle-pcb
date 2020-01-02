@@ -1,6 +1,6 @@
 include <eagle-pcb/common.scad>
 
-module con_phoenix_508_MKDSN1_5_2_5_08(pins=2, pitch=5.08) {
+module con_phoenix_508_MKDSN1_5_2_5_08(pins=2, pitch=5.08, name, value) {
 	color(green)
 	difference() {
 		hull() {
@@ -31,7 +31,7 @@ module con_phoenix_508_MKDSN1_5_2_5_08(pins=2, pitch=5.08) {
 	}
 }
 
-module con_phoenix_508_MSTBA(pins=2, pitch=5.08) {
+module con_phoenix_508_MSTBA(pins=2, pitch=5.08, name, value) {
 	translate([0, 1, 0]) {
 		color(green) render()
 		difference() {
@@ -43,6 +43,7 @@ module con_phoenix_508_MSTBA(pins=2, pitch=5.08) {
 							translate([0, 0, 0]) cc([pitch + ee, 12, 7.6]);
 							translate([0, 6, 4.3]) rotate([90, 0, 0]) cylinder(d=pitch + 2, h=12);
 						}
+						translate([0, 8, -ee]) cc([4.5, 3, 7]);
 					}
 				}
 				translate([0, 0, 4.3]) cc([pins * pitch + ee2, 12, 3.3]);
@@ -50,13 +51,20 @@ module con_phoenix_508_MSTBA(pins=2, pitch=5.08) {
 		}
 		color(silver) render() {
 			for (i=[0:pins-1]) {
-				translate([((pins - 1) * -0.5 + i) * pitch, 4.05, 0]) pin(height=4.3, width=1.0, belowheight = 3.5);
-				translate([((pins - 1) * -0.5 + i) * pitch, 5, 4.3]) rotate([90, 0, 0]) pin(height=10, width=1.0, belowheight = 0);
+				translate([((pins - 1) * -0.5 + i) * pitch, 4.05, 0]) union() {
+					pin(height=4.3, width=1.0, belowheight = 3.5);
+					cc([1, 1, 4.3]);
+				}
+				translate([((pins - 1) * -0.5 + i) * pitch, 4.55, 4.3]) rotate([90, 0, 0]) pin(height=10, width=1.0, belowheight = 0);
 			}
 		}
 	}
 }
 
 module con_phoenix_508_MSTBA2(name, value) {
-	con_phoenix_508_MSTBA(pins=2, pitch=5.08);
+	con_phoenix_508_MSTBA(pins=2, name=name, value=value);
+}
+
+module con_phoenix_508_MSTBA4(name, value) {
+	con_phoenix_508_MSTBA(pins=4, name=name, value=value);
 }
