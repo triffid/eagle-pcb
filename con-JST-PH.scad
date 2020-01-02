@@ -26,6 +26,10 @@ module con_JST_PH_B4B_PH_K_S(name, value) {
 	jst_ph(4);
 }
 
+module con_JST_PH_B5B_PH_K_S(name, value) {
+	jst_ph(5);
+}
+
 module con_JST_PH_B6B_PH_K_S(name, value) {
 	jst_ph(6);
 }

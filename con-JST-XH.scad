@@ -26,6 +26,10 @@ module con_JST_XH_B4B_XH_A(name, value) {
 	jst_xh(4);
 }
 
+module con_JST_XH_B5B_XH_A(name, value) {
+	jst_xh(5);
+}
+
 module con_JST_XH_B6B_XH_A(name, value) {
 	jst_xh(6);
 }
