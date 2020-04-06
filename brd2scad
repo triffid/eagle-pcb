@@ -158,6 +158,7 @@ for (@{$data->{drawing}->{board}->{plain}->{wire}}) {
 if (1) {
 	my $board;
 	my @aabb;
+	my @points;
 	open(TC, "<", $fileprefix."_board_outline.gm1") or die "Couldn't open ".$fileprefix."_board_outline.gm1: $!";
 	do {
 		my @apertures;
@@ -169,6 +170,8 @@ if (1) {
 			chomp; s/\r//g;
 			/X(\d+)Y(\d+)D(\d+)/ && do {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
+
+				push @points, [$x, $y, $op];
 
 				if ($op == 2) {
 					push @paths, [];
@@ -192,6 +195,70 @@ if (1) {
 		$board =~ s/,\n$//s;
 		$board .= "]";
 		if ($#paths > 1) {
+			my $i = 0;
+			while ($i < $#paths) {
+				my @path = @{@paths[$i]};
+				printf stderr "%d: %d, %d-%d (%g,%g)-(%g,%g)\n", $i, $#path, $paths[$i][0], $paths[$i][$#path],
+					$points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
+
+				if (
+					(abs($points[$path[$#path]][0] - $points[$paths[$i + 1][0]][0]) < 0.1) &&
+					(abs($points[$path[$#path]][1] - $points[$paths[$i + 1][0]][1]) < 0.1)
+					) {
+					printf stderr "combine!\n";
+					push @{@paths[$i]}, @{@paths[$i + 1]};
+# 					@paths = (@paths[0..$i],@paths[($i + 2)..$#paths]);
+					splice @paths, $i + 1, 1;
+				}
+				else {
+					$i++;
+				}
+			}
+			my $tries = 0;
+			my $closed = 0;
+			closeloop: while ($closed == 0) {
+				$closed = 1;
+				for my $p (0..$#paths) {
+					my @path = @{$paths[$p]};
+					if (
+						(abs($points[$path[0]][0] - $points[$path[$#path]][0]) >= 0.1) ||
+						(abs($points[$path[0]][1] - $points[$path[$#path]][1]) >= 0.1)) {
+						$closed = 0;
+						printf stderr "Finding match for start=%g,%g end=%g,%g\n", $points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
+						for my $q (0..$#paths) {
+							next if ($p == $q);
+							my @qath = @{$paths[$q]};
+							next if (
+								(abs($points[$qath[0]][0] - $points[$qath[$#qath]][0]) < 0.1) &&
+								(abs($points[$qath[0]][1] - $points[$qath[$#qath]][1]) < 0.1));
+							printf stderr "Checking start=%g,%g end=%g,%g\n", $points[$qath[0]][0], $points[$qath[0]][1], $points[$qath[$#qath]][0], $points[$qath[$#qath]][1];
+							if (
+								(abs($points[$qath[0]][0] - $points[$path[$#path]][0]) < 0.1) &&
+								(abs($points[$qath[0]][1] - $points[$path[$#path]][1]) < 0.1)) {
+								printf stderr "Match end! (%d <- %d)\n", $p, $q;
+								push @{$paths[$p]}, @{$paths[$q]};
+								splice @paths, $q, 1;
+								redo closeloop;
+							}
+							if (
+								(abs($points[$path[0]][0] - $points[$qath[$#qath]][0]) < 0.1) &&
+								(abs($points[$path[0]][1] - $points[$qath[$#qath]][1]) < 0.1)) {
+								printf stderr "Match start! (%d -> %d)\n", $p, $q;
+								unshift @{$paths[$q]}, @{$paths[$p]};
+								splice @paths, $p, 1;
+								redo closeloop;
+							}
+						}
+						last closeloop if ++$tries > 20;
+					}
+				}
+			};
+			printf stderr "Paths:\n";
+			for my $p (@paths) {
+				my @path = @{$p};
+				printf stderr "(%g,%g)-(%g,%g)\n", $points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
+
+			}
 			$board .= ",\n\tpaths=[\n";
 			for (@paths) {
 				$board .= ",\n" if $_ != $paths[0];
