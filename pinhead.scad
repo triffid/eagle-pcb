@@ -75,6 +75,10 @@ module pinhead_1X06(name, value) {
 	pinhead(pins = 6);
 }
 
+module pinhead_2X02(name, value) {
+	pinhead(pins = 2, rows = 2);
+}
+
 module pinhead_2X03(name, value) {
 	pinhead(pins = 3, rows = 2);
 }
@@ -85,6 +89,14 @@ module pinhead_2X04(name, value) {
 
 module pinhead_2X06(name, value) {
 	pinhead(pins = 6, rows = 2);
+}
+
+module pinhead_2X08(name, value) {
+	pinhead(pins = 8, rows = 2);
+}
+
+module pinhead_2X25(name, value) {
+	pinhead(pins = 25, rows = 2);
 }
 
 module pinhead_2X03_90(name, value) {

@@ -39,3 +39,7 @@ module inductors_smd_MSS1048(name, value) {
 module inductors_smd_LPS4018(name, value) {
 	inductors_smd(name, value, 4.1, 1.8);
 }
+
+module inductors_smd_0603_1608(name, value) {
+	rcsmd([6 * 0.254, 3 * 0.254], name=name, value=value, , bodycolor=dark);
+}

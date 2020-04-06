@@ -69,3 +69,7 @@ module MOSFET_DFN_S_6X5_PP(name, value) {
 		translate([5.75 * 3 / -8, 5 * 3 / 8, 0.95]) cylinder(d=0.6, h=ee, $fn=12);
 	}
 }
+
+module MOSFET_SO_8L_POWERPAK(name, value) {
+	rotate(90) soic(name=name, value=value);
+}

@@ -66,6 +66,26 @@ module rcl_CT3216(name, value) {
 	color(silver) translate([0, 0, ee]) cc([3.3, 1, 0.8]);
 }
 
+module rcl_Clarge(size, pitch, name, value) {
+	color(capacitor_brown) cc(size);
+	color(white) {
+		translate([0,  0.1, size[2] + ee]) linear_extrude(height = ee) text(text=name , halign="center", valign="bottom", size=size[0] / len(value));
+		translate([0, -0.1, size[2] + ee]) linear_extrude(height = ee) text(text=value, halign="center", valign="top"   , size=size[0] / len(value));
+	}
+	color(silver) {
+		for (i = [0:1])
+			translate([(i - 0.5) * pitch, 0, -2]) cylinder(d=0.7, h=3);
+	}
+}
+
+module rcl_C225_108X268(name, value) {
+	rcl_Clarge([26.5, 10.5, 20], 22.5, name=name, value=value);
+}
+
+module rcl_C075_063X106(name, value) {
+	rcl_Clarge([10.5, 6.3, 7], 7.5, name=name, value=value);
+}
+
 module rcl_PANASONIC_A(name, value) {
 	electro_capacitor(3, 4, name=name, value=value);
 }

@@ -24,6 +24,13 @@ module diode_SMC(name, value) {
 	color(white) render() translate([0.5, 0, 2.3]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size = 5.8 / len(value));
 }
 
+module diode_DO_214AC(name, value) {
+	color(black) render() cc([4.3, 2.5, 2.2]);
+	color(silver) render() cc([5, 2, 1.4]);
+	color(light) render() translate([4.3 / -2 + 0.5, 0, 2.2]) cc([1, 2.5, ee]);
+	color(white) render() translate([0.5, 0, 2.2]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size = 2.3 / len(value));
+}
+
 module diode_SOD123(name, value) {
 	color(black) render() cc([2.69, 1.6, 1.17]);
 	color(silver) render() {
@@ -44,6 +51,10 @@ module diode_SOD323_R(name, value) {
 	color(light) translate([-0.6, 0, 0.6]) cc([0.4, 1.2, ee]);
 }
 
+module diode_SOD323_R_1(name, value) {
+	diode_SOD323_R(name, value);
+}
+
 module diode_SOD323_W(name, value) {
 	diode_SOD323_R(name, value);
 }
@@ -52,4 +63,12 @@ module diode_SOD_128(name, value) {
 	color(dark) cc([2.5, 3.7, 0.95]);
 	color(silver) cc([1.5, 4.7, 0.17]);
 	color(light) translate([0, 3.7 * 0.5 - 0.5, 0.95]) cc([2.5, 1, ee]);
+}
+
+module diode_SC70_6(name, value) {
+	soic(p=6, w=1.3, pitch=0.65, h=0.6, name=name, value=value);
+}
+
+module diode_SOT23_6(name, value) {
+	rotate(90) sot23(pins=6, name=name, value=value);
 }
