@@ -41,5 +41,21 @@ module inductors_smd_LPS4018(name, value) {
 }
 
 module inductors_smd_0603_1608(name, value) {
-	rcsmd([6 * 0.254, 3 * 0.254], name=name, value=value, , bodycolor=dark);
+	rcsmd([1.6, 0.8], name=name, value=value, bodycolor=dark);
+}
+
+module inductors_smd_EIA0805_M2012_IPC7351_B(name, value) {
+	rcsmd([2,1.2], name=name,value=value, bodycolor=dark);
+}
+
+module inductors_smd_EIA0402_M1005_IPC7351_B(name, value) {
+	rcsmd([1,0.5], name=name,value=value, bodycolor=dark);
+}
+
+module inductors_smd_EIA1206_M3216_IPC7351_B(name, value) {
+	rcsmd([3.2,1.6], name=name,value=value, bodycolor=dark);
+}
+
+module inductors_smd_XAL1010(name, value) {
+	inductors_smd(name, value, 10, 10);
 }

@@ -1,12 +1,17 @@
 include <eagle-pcb/common.scad>
 
 module TCXO_SMD3225(name, value) {
-	smt_xtal(name=name, value=value);
+	smt_xtal(name=name, value=value, size=[3.2,2.5]);
 }
 
 module TCXO_SMD3225_NP(name, value) {
-	smt_xtal(name=name, value=value);
+	smt_xtal(name=name, value=value, size=[3.2,2.5]);
 }
+
+module TCXO_SMD3215(name, value) {
+	smt_xtal(name=name, value=value, size=[3.2,1.5]);
+}
+
 
 module TCXO_HC49US_SMD(name, value) {
 	color(dark) {

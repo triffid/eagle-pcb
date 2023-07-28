@@ -13,7 +13,7 @@ module con_coax_AMP_227161(name, value) {
 					translate([0, -6.2, 6]) rotate([-90, 0, 0]) cylinder(d=4.5, h=32);
 					translate([0, -6.21, 6]) rotate([-90, 0, 0]) cylinder(d=2.05, h=50);
 				}
-				for (i = [0:1]) translate([(i - 0.5) * 10, -6.2 + 6, -2]) {
+				for (i = [0:1]) translate([(i - 0.5) * 10.16, 0.3, -2]) {
 					cylinder(d=2, h=3);
 				}
 			}
