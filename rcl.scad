@@ -68,7 +68,7 @@ module rcl_CT3216(name, value) {
 
 module rcl_Clarge(size, pitch, name, value) {
 	color(capacitor_brown) cc(size);
-	color(white) {
+	if ($preview) color(white) {
 		translate([0,  0.1, size[2] + ee]) linear_extrude(height = ee) text(text=name , halign="center", valign="bottom", size=size[0] / len(value));
 		translate([0, -0.1, size[2] + ee]) linear_extrude(height = ee) text(text=value, halign="center", valign="top"   , size=size[0] / len(value));
 	}
@@ -106,6 +106,10 @@ module rcl_PANASONIC_E(name, value) {
 	electro_capacitor(8, 10, name=name, value=value);
 }
 
+module rcl_PANASONIC_E_D8(name, value) {
+	rcl_PANASONIC_E(name, value);
+}
+
 module rcl_UD_6_3X5_8_NICHICON(name, value) {
 	electro_capacitor(6.3, 5.8, name=name, value=value);
 }
@@ -132,12 +136,62 @@ module rcl_D_7343_31R(name, value) {
 	color(white) translate([(7.3 / 2) - 0.5, 0, 1.8]) cc([1, 4.3, ee]);
 	color(silver) translate([0, 0, ee]) cc([7.4, 2.4, 1]);
 
-	color(white) translate([0,  0.3, 1.8]) linear_extrude(height=ee) text(text=name, valign="bottom", halign="center", size=1);
-	color(white) translate([0, -0.3, 1.8]) linear_extrude(height=ee) text(text=value, valign="top", halign="center", size=1);
+	if ($preview) color(white) translate([0,  0.3, 1.8]) linear_extrude(height=ee) text(text=name, valign="bottom", halign="center", size=1);
+	if ($preview) color(white) translate([0, -0.3, 1.8]) linear_extrude(height=ee) text(text=value, valign="top", halign="center", size=1);
 }
 
 module rcl_RTRIM3314J(name, value) {
 	color(silver) cc([4.5, 4.5, 3]);
 	color(dark) cylinder(d=3, h=3 + ee);
-	color(white) translate([0, 0, 3 + ee2]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3 / len(value));
+	if ($preview) color(white) translate([0, 0, 3 + ee2]) linear_extrude(height = ee) text(text=value, halign="center", valign="center", size=3 / len(value));
+}
+
+module rcl_10X32_5_RAD_RA(name, value) {
+	color(silver)
+	for (m=[0:1]) mirror([m, 0, 0]) {
+		translate([-2.5, -18, 0]) rotate([0, 0, -90])
+			tubesegment(0.7, 0, 4)
+			tubesegment(0.7, 0, pi/2, 90)
+			tubesegment(0.7, 0, 10);
+	}
+	color(blue) render() {
+	translate([0, -12.5, 5]) rotate([-90, 0, 0])
+		difference() {
+			union() {
+				cylinder(d=8, h=30);
+				hull() {
+					cylinder(d=8, h=2.5);
+					cylinder(d=9, h=0.5);
+					translate([0, 0, 0.5]) cylinder(d=10, h=1);
+				}
+				hull() {
+					translate([0, 0, 3.5]) cylinder(d= 8, h=26.5);
+					translate([0, 0, 4.5]) cylinder(d=10, h=25);
+				}
+			}
+			translate([3.5, -13, -1]) cube([10, 20, 50]);
+		}
+	}
+	color(light) render() {
+		translate([0, -12.5, 5]) rotate([-90, 0, 0])
+		intersection() {
+			union() {
+				cylinder(d=8, h=30);
+				hull() {
+					cylinder(d=8, h=2.5);
+					cylinder(d=9, h=0.5);
+					translate([0, 0, 0.5]) cylinder(d=10, h=1);
+				}
+				hull() {
+					translate([0, 0, 3.5]) cylinder(d= 8, h=26.5);
+					translate([0, 0, 4.5]) cylinder(d=10, h=25);
+				}
+			}
+			translate([3.5, -13, -1]) cube([10, 20, 50]);
+		}
+	}
+	color(white) rotate([0, 0, 90]) {
+		if ($preview) translate([0,  0.1, 10 + ee]) linear_extrude(height = ee) text(text=name , halign="center", valign="bottom", size=10 / len(value));
+		if ($preview) translate([0, -0.1, 10 + ee]) linear_extrude(height = ee) text(text=value, halign="center", valign="top"   , size=10 / len(value));
+	}
 }
