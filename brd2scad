@@ -168,6 +168,7 @@ if (1) {
 		my @paths = ();
 		while (<TC>) {
 			chomp; s/\r//g;
+			printf stderr "\t\t%s", $_;
 			/X(\d+)Y(\d+)D(\d+)/ && do {
 				my ($x, $y, $op) = ($1 * $scalefactor, $2 * $scalefactor, $3);
 
@@ -189,49 +190,58 @@ if (1) {
 
 				push @{$paths[$#paths]}, $index;
 				$board .= sprintf("\t\t[%g,%g],\n", $x, $y);
+				printf stderr " ← %g,%g [%d, %d]", $x, $y, $#paths, $index;
 				$index++;
 			};
+			printf stderr "\n";
 		}
 		$board =~ s/,\n$//s;
 		$board .= "]";
 		if ($#paths > 1) {
-			my $i = 0;
-			while ($i < $#paths) {
-				my @path = @{@paths[$i]};
-				printf stderr "%d: %d, %d-%d (%g,%g)-(%g,%g)\n", $i, $#path, $paths[$i][0], $paths[$i][$#path],
-					$points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
-
-				if (
-					(abs($points[$path[$#path]][0] - $points[$paths[$i + 1][0]][0]) < 0.1) &&
-					(abs($points[$path[$#path]][1] - $points[$paths[$i + 1][0]][1]) < 0.1)
-					) {
-					printf stderr "combine!\n";
-					push @{@paths[$i]}, @{@paths[$i + 1]};
-# 					@paths = (@paths[0..$i],@paths[($i + 2)..$#paths]);
-					splice @paths, $i + 1, 1;
-				}
-				else {
-					$i++;
-				}
-			}
+# 			my $i = 0;
+# 			while ($i < $#paths) {
+# 				my @path = @{@paths[$i]};
+# 				printf stderr "%d: %d, %d-%d (%g, %g)-(%g, %g)\n", $i, $#path, $paths[$i][0], $paths[$i][$#path],
+# 					$points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
+#
+# 				if (0 &&
+# 					(abs($points[$path[$#path]][0] - $points[$paths[$i + 1][0]][0]) < 0.1) &&
+# 					(abs($points[$path[$#path]][1] - $points[$paths[$i + 1][0]][1]) < 0.1)
+# 					)
+# 				{
+# 					printf stderr "combine!\n";
+# 					push @{@paths[$i]}, @{@paths[$i + 1]};
+# # 					@paths = (@paths[0..$i],@paths[($i + 2)..$#paths]);
+# 					splice @paths, $i + 1, 1;
+# 				}
+# 				else {
+# 					$i++;
+# 				}
+# 			}
 			my $tries = 0;
 			my $closed = 0;
 			closeloop: while ($closed == 0) {
+				for my $i (0..$#paths) {
+					my @path = @{@paths[$i]};
+					printf stderr "%d: %d, %d-%d (%g, %g)-(%g, %g)\n", $i, $#path, $paths[$i][0], $paths[$i][$#path],
+						$points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
+				}
 				$closed = 1;
 				for my $p (0..$#paths) {
 					my @path = @{$paths[$p]};
 					if (
 						(abs($points[$path[0]][0] - $points[$path[$#path]][0]) >= 0.1) ||
-						(abs($points[$path[0]][1] - $points[$path[$#path]][1]) >= 0.1)) {
+						(abs($points[$path[0]][1] - $points[$path[$#path]][1]) >= 0.1))
+					{
 						$closed = 0;
-						printf stderr "Finding match for start=%g,%g end=%g,%g\n", $points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
+						printf stderr "Finding match for [%d] start=%g, %g end=%g, %g\n", $p, $points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
 						for my $q (0..$#paths) {
 							next if ($p == $q);
 							my @qath = @{$paths[$q]};
 							next if (
 								(abs($points[$qath[0]][0] - $points[$qath[$#qath]][0]) < 0.1) &&
 								(abs($points[$qath[0]][1] - $points[$qath[$#qath]][1]) < 0.1));
-							printf stderr "Checking start=%g,%g end=%g,%g\n", $points[$qath[0]][0], $points[$qath[0]][1], $points[$qath[$#qath]][0], $points[$qath[$#qath]][1];
+							printf stderr "Checking [%d] start=%g, %g end=%g, %g\n", $q, $points[$qath[0]][0], $points[$qath[0]][1], $points[$qath[$#qath]][0], $points[$qath[$#qath]][1];
 							if (
 								(abs($points[$qath[0]][0] - $points[$path[$#path]][0]) < 0.1) &&
 								(abs($points[$qath[0]][1] - $points[$path[$#path]][1]) < 0.1)) {
@@ -243,12 +253,27 @@ if (1) {
 							if (
 								(abs($points[$path[0]][0] - $points[$qath[$#qath]][0]) < 0.1) &&
 								(abs($points[$path[0]][1] - $points[$qath[$#qath]][1]) < 0.1)) {
-								printf stderr "Match start! (%d -> %d)\n", $p, $q;
-								unshift @{$paths[$q]}, @{$paths[$p]};
-								splice @paths, $p, 1;
+								printf stderr "Match start! (%d -> %d)\n", $q, $p;
+								unshift @{$paths[$p]}, @{$paths[$q]};
+								splice @paths, $q, 1;
 								redo closeloop;
 							}
-						}
+							if (
+								(abs($points[$path[$#path]][0] - $points[$qath[$#qath]][0]) < 0.1) &&
+								(abs($points[$path[$#path]][1] - $points[$qath[$#qath]][1]) < 0.1)) {
+								printf stderr "Match end-end! (%d <-> %d)\n", $p, $q;
+								push @{$paths[$p]}, (reverse @{$paths[$q]});
+								splice @paths, $q, 1;
+								redo closeloop;
+							}
+							if (
+								(abs($points[$path[$#path]][0] - $points[$qath[$#qath]][0]) < 0.1) &&
+								(abs($points[$path[$#path]][1] - $points[$qath[$#qath]][1]) < 0.1)) {
+								printf stderr "Match start-start! (%d <-> %d)\n", $p, $q;
+								push @{$paths[$p]}, (reverse @{$paths[$q]});
+								splice @paths, $q, 1;
+								redo closeloop;
+							}						}
 						last closeloop if ++$tries > 20;
 					}
 				}
@@ -256,7 +281,13 @@ if (1) {
 			printf stderr "Paths:\n";
 			for my $p (@paths) {
 				my @path = @{$p};
-				printf stderr "(%g,%g)-(%g,%g)\n", $points[$path[0]][0], $points[$path[0]][1], $points[$path[$#path]][0], $points[$path[$#path]][1];
+				printf stderr "(%g,%g)-(%g,%g) %s\n",
+					$points[$path[0]][0], $points[$path[0]][1],
+					$points[$path[$#path]][0], $points[$path[$#path]][1],
+					(
+						(abs($points[$path[0]][0] - $points[$path[$#path]][0]) < 0.1) &&
+						(abs($points[$path[0]][1] - $points[$path[$#path]][1]) < 0.1)
+						) ? "<closed>":"<open!>";
 
 			}
 			$board .= ",\n\tpaths=[\n";
@@ -313,13 +344,13 @@ print "\n";
 
 print "color(fr4) render(convexity=5) translate([0, 0, -board_thickness]) linear_extrude(board_thickness) difference() { 2dboard(); drills(); }\n\n";
 
-print "color(light) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee) difference() { gerber_tcopper(); drills(); }\n";
-print "color(soldermask) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee2) difference() { 2dboard(); gerber_tstop(); }\n";
-print "color(white) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee2 + ee) intersection() { difference() { gerber_tsilk(); offset(0.1) gerber_tstop(); offset(0.1) drills(); } 2dboard(); }\n\n";
+print "if (\$preview) color(light) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee) difference() { intersection() { gerber_tcopper(); 2dboard(); } drills(); }\n";
+print "if (\$preview) color(soldermask) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee2) difference() { 2dboard(); gerber_tstop(); }\n";
+print "if (\$preview) color(white) render(convexity=5) translate([0, 0, -ee]) linear_extrude(0.035 + ee2 + ee) intersection() { difference() { gerber_tsilk(); offset(0.1) gerber_tstop(); offset(0.1) drills(); } 2dboard(); }\n\n";
 
-print "color(light) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee) difference() { gerber_bcopper(); drills(); }\n";
-print "color(soldermask) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee2) difference() { 2dboard(); gerber_bstop(); }\n";
-print "color(white) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee2 + ee) intersection() { difference() { gerber_bsilk(); offset(0.1) gerber_bstop(); offset(0.1) drills(); } 2dboard(); }\n";
+print "if (\$preview) color(light) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee) difference() { intersection() { gerber_bcopper(); 2dboard(); } drills(); }\n";
+print "if (\$preview) color(soldermask) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee2) difference() { 2dboard(); gerber_bstop(); }\n";
+print "if (\$preview) color(white) render(convexity=5) bottom(board_thickness - ee) linear_extrude(0.035 + ee2 + ee) intersection() { difference() { gerber_bsilk(); offset(0.1) gerber_bstop(); offset(0.1) drills(); } 2dboard(); }\n";
 
 print "\n";
 
